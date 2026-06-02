@@ -1,6 +1,6 @@
 //
 //  App.swift
-//  Code App
+//  App Code
 //
 //  Created by Ken Chung on 5/12/2020.
 //
@@ -795,7 +795,7 @@ class MainApp: ObservableObject {
                     }
                 },
                 secondaryTitle: "common.overwrite",
-                source: "Code App")
+                source: "App Code")
         } catch {
             self.notificationManager.showErrorMessage(error.localizedDescription)
         }

@@ -17,7 +17,7 @@ class AppExtensionService: NSObject {
     func startServer() {
         let BLE: AnyClass = (NSClassFromString("TlNFeHRlbnNpb24=".base64Decoded()!)!)
         let ext = Dynamic(BLE).extensionWithIdentifier(
-            "thebaselab.VS-Code.extension", error: nil)
+            "com.nightvibes.appcode.extension", error: nil)
         let frameworkDir = Bundle.main.privateFrameworksPath!
         let frameworkDirBookmark = try! URL(fileURLWithPath: frameworkDir).bookmarkData()
         let pythonLibraryDirBookmark = try? FileManager().url(
@@ -51,7 +51,7 @@ class AppExtensionService: NSObject {
 
     func stopServer() {
         let notificationName = CFNotificationName(
-            "com.thebaselab.code.node.stop" as CFString)
+            "com.nightvibes.appcode.node.stop" as CFString)
         let notificationCenter = CFNotificationCenterGetDarwinNotifyCenter()
         CFNotificationCenterPostNotification(
             notificationCenter, notificationName, nil, nil, false)

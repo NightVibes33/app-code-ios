@@ -178,12 +178,16 @@ struct ExplorerFileTree: View {
             image: UIImage(systemName: "link")!
         ) { _ in
             let pasteboard = UIPasteboard.general
-            guard let targetURL = URL(string: item.url),
-                let baseURL = (App.activeEditor as? EditorInstanceWithURL)?.url
-            else {
+            guard let targetURL = item._url ?? URL(string: item.url) else {
                 return
             }
+            let baseURL = (App.activeEditor as? EditorInstanceWithURL)?.url
+                ?? App.workSpaceStorage.currentDirectory._url
+                ?? targetURL.deletingLastPathComponent()
             pasteboard.string = targetURL.relativePath(from: baseURL)
+                ?? targetURL.pathRelativeTo(baseURL)
+                ?? targetURL.lastPathComponent
+            App.notificationManager.showInformationMessage("Copied relative path")
         }
 
         let ACTION_NEW_FILE = UIAction(

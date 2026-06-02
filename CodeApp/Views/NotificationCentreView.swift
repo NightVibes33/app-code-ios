@@ -56,8 +56,9 @@ private struct NotificationItem<V: View>: View {
         .frame(minHeight: 50)
         .padding(10)
         .frame(maxWidth: 300)
-        .background(Color.init(id: "sideBar.background"))
+        .background(Color.init(id: "sideBar.background").opacity(0.78))
         .cornerRadius(10)
+        .appCodeGlassPanel(cornerRadius: 14, interactive: true)
     }
 }
 

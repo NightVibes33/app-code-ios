@@ -181,6 +181,8 @@ struct TopBar: View {
             }
 
         }
+        .background(Color.init(id: "sideBar.background").opacity(0.72))
+        .appCodeGlassPanel(cornerRadius: 0)
     }
 }
 

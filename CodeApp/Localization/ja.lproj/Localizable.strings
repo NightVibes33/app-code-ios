@@ -1,24 +1,24 @@
 /*
   Localizable.strings
-  Code App
+  App Code
 
   Created by yuki futami on 2023/01/05.
   
 */
 
 "Welcome Message" =
-"# Code App
+"# App Code
 ##### **v1.12.1 (2026 年 3 月)**
 #### 開始
-[新しいファイル](https://thebaselab.com/code/newfile)
-[ファイルを開く](https://thebaselab.com/code/openfile)
-[フォルダーを開く](https://thebaselab.com/code/openfolder)
+[新しいファイル](appcode://newfile)
+[ファイルを開く](appcode://openfile)
+[フォルダーを開く](appcode://openfolder)
 
 #### ヘルプ
-[ドキュメント](https://code.thebaselab.com)
-[GitHub](https://github.com/thebaselab/codeapp)
-[Email](mailto:support@thebaselab.com)
-[X](https://x.com/thebaselab)
+[ドキュメント](https://github.com/NightVibes33/app-code-ios)
+[GitHub](https://github.com/NightVibes33/app-code-ios)
+[Email](mailto:support@nightvibes.app)
+[X](https://x.com/NightVibes)
 ";
 
 "Changelog.message" =
@@ -329,7 +329,7 @@
    - ドットで始まるファイルまたはディレクトリはデフォルトで非表示になりました
    - 2 本指のパン ジェスチャでアイテムを選択する機能
 - その他の改善
-   - Code App を使用してファイル アプリまたは他のアプリから直接ファイルを開くことができるようになりました
+   - App Code を使用してファイル アプリまたは他のアプリから直接ファイルを開くことができるようになりました
    - ホーム画面からアプリのアイコンを長押しして、最近のドキュメントを表示できるようになりました
    - タイプミスを修正
 ";
@@ -385,7 +385,7 @@
 "Terminal Font Size" = "ターミナルのフォントサイズ";
 "Bracket Completion" = "ブラケットの補完";
 "Theme" = "テーマ";
-"Rate Code App" = "Code App を評価";
+"Rate App Code" = "App Code を評価";
 "About" = "製品について";
 "Version" = "バージョン";
 
@@ -427,7 +427,7 @@
 "New Folder" = "新しいフォルダー";
 
 "The folder currently opened doesn't have a git repository." = "現在開いているフォルダーには Git リポジトリがありません。";
-"Example: https://github.com/thebaselab/codeapp.git" = "例: https://github.com/thebaselab/codeapp.git";
+"Example: https://github.com/NightVibes33/app-code-ios.git" = "例: https://github.com/NightVibes33/app-code-ios.git";
 "Initialize Repository" = "リポジトリを初期化する";
 "Clone Repository" = "リポジトリのクローン";
 "TERMINAL" = "ターミナル";
@@ -449,7 +449,7 @@
 "Welcome" = "作業の開始";
 "Licenses" = "ライセンス";
 "Version" = "バージョン";
-"Code App by thebaselab" = "Code App by thebaselab";
+"App Code by NightVibes" = "App Code by NightVibes";
 "Themes" = "テーマ";
 "Read-only Mode" = "読み取り専用モード";
 "Show Welcome Page" = "ウェルカムページを表示";

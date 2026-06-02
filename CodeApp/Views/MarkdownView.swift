@@ -91,14 +91,14 @@ struct WelcomeView: UIViewRepresentable {
                     resolvingBookmarkData: datas[i], bookmarkDataIsStale: &isStale)
                 {
                     recentFolders =
-                        "\n[\(newURL.lastPathComponent)](https://thebaselab.com/code/previousFolder/\(i))"
+                        "\n[\(newURL.lastPathComponent)](appcode://previousFolder/\(i))"
                         + recentFolders
                 }
             }
             content = content.replacingOccurrences(
-                of: "(https://thebaselab.com/code/openfolder)",
+                of: "(appcode://openfolder)",
                 with:
-                    "(https://thebaselab.com/code/openfolder)\n\n#### \(NSLocalizedString("Recent", comment: ""))"
+                    "(appcode://openfolder)\n\n#### \(NSLocalizedString("Recent", comment: ""))"
                     + recentFolders)
         }
 
@@ -113,20 +113,20 @@ struct WelcomeView: UIViewRepresentable {
 
             if url.scheme == "file" {
                 return false
-            } else if url.scheme == "https" || url.scheme == "mailto" {
+            } else if url.scheme == "https" || url.scheme == "mailto" || url.scheme == "appcode" {
                 switch url.absoluteString {
-                case "https://thebaselab.com/code/newfile":
+                case "appcode://newfile":
                     onCreateNewFile()
-                case "https://thebaselab.com/code/openfolder":
+                case "appcode://openfolder":
                     onSelectFolder()
-                case "https://thebaselab.com/code/openfile":
+                case "appcode://openfile":
                     onSelectFile()
-                case "https://thebaselab.com/code/clone":
+                case "appcode://clone":
                     onNavigateToCloneSection()
-                case let i where i.hasPrefix("https://thebaselab.com/code/previousFolder/"):
+                case let i where i.hasPrefix("appcode://previousFolder/"):
                     let key = Int(
                         i.replacingOccurrences(
-                            of: "https://thebaselab.com/code/previousFolder/", with: ""))!
+                            of: "appcode://previousFolder/", with: ""))!
                     if let datas = UserDefaults.standard.value(forKey: "recentFolder") as? [Data] {
                         var isStale = false
                         if let newURL = try? URL(

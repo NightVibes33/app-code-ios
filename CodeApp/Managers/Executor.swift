@@ -41,7 +41,7 @@ class Executor {
 
     init(
         root: URL,
-        sessionIdentifier: String = "com.thebaselab.terminal",
+        sessionIdentifier: String = "com.nightvibes.appcode.terminal",
         onStdout: @escaping ((_ data: Data) -> Void),
         onStderr: @escaping ((_ data: Data) -> Void),
         onRequestInput: @escaping ((_ prompt: String) -> Void)

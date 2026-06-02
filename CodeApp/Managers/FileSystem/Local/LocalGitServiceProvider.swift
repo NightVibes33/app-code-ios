@@ -336,10 +336,15 @@ class LocalGitServiceProvider: GitServiceProvider {
         let repository = try self.checkedRepository()
         let entries = try repository.status(options: [.includeUnmodified]).get()
         for entry in entries {
-            if let oldFilePath = entry.headToIndex?.oldFile?.path,
-                path == oldFilePath,
-                let oid = entry.headToIndex?.oldFile?.oid
-            {
+            let candidates: [(String?, OID?)] = [
+                (entry.headToIndex?.oldFile?.path, entry.headToIndex?.oldFile?.oid),
+                (entry.headToIndex?.newFile?.path, entry.headToIndex?.newFile?.oid),
+                (entry.indexToWorkDir?.oldFile?.path, entry.indexToWorkDir?.oldFile?.oid),
+                (entry.indexToWorkDir?.newFile?.path, entry.indexToWorkDir?.newFile?.oid),
+            ]
+            if let oid = candidates.first(where: { candidatePath, oid in
+                candidatePath == path && oid != nil
+            })?.1 {
                 return oid
             }
         }

@@ -79,7 +79,11 @@ private struct Controls: View {
                 .padding(2)
                 .contentShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                 .onTapGesture {
-                    try? onUnstage(itemUrl.absoluteString)
+                    do {
+                        try onUnstage(itemUrl.absoluteString)
+                    } catch {
+                        App.notificationManager.showErrorMessage(error.localizedDescription)
+                    }
                 }
                 .hoverEffect(.highlight)
         case .workTreeModified, .workTreeNew, .workTreeDeleted, .conflicted:
@@ -90,7 +94,11 @@ private struct Controls: View {
                     .contentShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                     .onTapGesture {
                         Task {
-                            try await onRevert(itemUrl.absoluteString, false)
+                            do {
+                                try await onRevert(itemUrl.absoluteString, false)
+                            } catch {
+                                App.notificationManager.showErrorMessage(error.localizedDescription)
+                            }
                         }
                     }
                     .hoverEffect(.highlight)
@@ -99,7 +107,11 @@ private struct Controls: View {
                 .padding(2)
                 .contentShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                 .onTapGesture {
-                    try? onStage([itemUrl.absoluteString])
+                    do {
+                        try onStage([itemUrl.absoluteString])
+                    } catch {
+                        App.notificationManager.showErrorMessage(error.localizedDescription)
+                    }
                 }
                 .hoverEffect(.highlight)
         default:

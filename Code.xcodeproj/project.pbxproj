@@ -692,6 +692,8 @@
 		94A0462C2804A70C00182275 /* SourceControlUnsupportedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94A0462A2804A70C00182275 /* SourceControlUnsupportedSection.swift */; };
 		94A347BD293DE24B00A59658 /* hiddenSystemOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94A347BC293DE24B00A59658 /* hiddenSystemOverlays.swift */; };
 		94A347BE293DE24B00A59658 /* hiddenSystemOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94A347BC293DE24B00A59658 /* hiddenSystemOverlays.swift */; };
+		AA11BB22CC33DD44EE550001 /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE550003 /* LiquidGlass.swift */; };
+		AA11BB22CC33DD44EE550002 /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE550003 /* LiquidGlass.swift */; };
 		94A5682B257CBDE4008A6530 /* MarkdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94A5682A257CBDE4008A6530 /* MarkdownView.swift */; };
 		94A56830257CC3A1008A6530 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 94A56832257CC3A1008A6530 /* Localizable.strings */; };
 		94A56835257CC60E008A6530 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 94A56834257CC60E008A6530 /* LaunchScreen.storyboard */; };
@@ -1873,6 +1875,7 @@
 		94A046272804A6B300182275 /* SourceControlEmptySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceControlEmptySection.swift; sourceTree = "<group>"; };
 		94A0462A2804A70C00182275 /* SourceControlUnsupportedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceControlUnsupportedSection.swift; sourceTree = "<group>"; };
 		94A347BC293DE24B00A59658 /* hiddenSystemOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hiddenSystemOverlays.swift; sourceTree = "<group>"; };
+		AA11BB22CC33DD44EE550003 /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
 		94A4438225A389FF006643FF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		94A5682A257CBDE4008A6530 /* MarkdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownView.swift; sourceTree = "<group>"; };
 		94A56831257CC3A1008A6530 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -2948,6 +2951,7 @@
 			children = (
 				9F3C2DC72918A31000BFF14C /* hiddenScrollableContentBackground.swift */,
 				94A347BC293DE24B00A59658 /* hiddenSystemOverlays.swift */,
+				AA11BB22CC33DD44EE550003 /* LiquidGlass.swift */,
 				9F29759B2A1F488E007FDB3D /* deferredRendering.swift */,
 			);
 			path = Modifiers;
@@ -3662,6 +3666,7 @@
 				942E32082808805F00233441 /* SearchUnsupportedSection.swift in Sources */,
 				94A347BE293DE24B00A59658 /* hiddenSystemOverlays.swift in Sources */,
 				9F3C2DC92918A31000BFF14C /* hiddenScrollableContentBackground.swift in Sources */,
+				AA11BB22CC33DD44EE550002 /* LiquidGlass.swift in Sources */,
 				9434C3F02BA2CCBB00EB1CF6 /* WASMService.swift in Sources */,
 				945D4F592B50F55800DE0DBA /* VimKeyBufferLabel.swift in Sources */,
 				9FC03E6A291F303900DECD1B /* Utilities.swift in Sources */,
@@ -3856,6 +3861,7 @@
 				942E32072808805F00233441 /* SearchUnsupportedSection.swift in Sources */,
 				94A347BD293DE24B00A59658 /* hiddenSystemOverlays.swift in Sources */,
 				9F3C2DC82918A31000BFF14C /* hiddenScrollableContentBackground.swift in Sources */,
+				AA11BB22CC33DD44EE550001 /* LiquidGlass.swift in Sources */,
 				9434C3EF2BA2CCBB00EB1CF6 /* WASMService.swift in Sources */,
 				945D4F582B50F55800DE0DBA /* VimKeyBufferLabel.swift in Sources */,
 				9FC03E69291F303900DECD1B /* Utilities.swift in Sources */,
@@ -4036,10 +4042,10 @@
 				CODE_SIGN_ENTITLEMENTS = "Code App.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 87;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"CodeApp/Preview Content\"";
-				DEVELOPMENT_TEAM = 69R94YG49H;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = NO;
@@ -4051,15 +4057,15 @@
 					"$(PROJECT_DIR)/Resources/Java/java-frameworks",
 				);
 				INFOPLIST_FILE = CodeUI.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 1.12.1;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
-				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nightvibes.appcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
@@ -4083,10 +4089,10 @@
 				CODE_SIGN_ENTITLEMENTS = "Code App.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 87;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"CodeApp/Preview Content\"";
-				DEVELOPMENT_TEAM = 69R94YG49H;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = NO;
@@ -4099,17 +4105,17 @@
 				);
 				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = CodeUI.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 1.12.1;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
-				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nightvibes.appcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore thebaselab.VS-Code";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.nightvibes.appcode";
 				STRIP_STYLE = "non-global";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
@@ -4127,9 +4133,9 @@
 				CODE_SIGN_ENTITLEMENTS = NodeExtension/extension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 87;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 69R94YG49H;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4138,14 +4144,14 @@
 					"$(PROJECT_DIR)/Resources/Java/java-frameworks",
 				);
 				INFOPLIST_FILE = NodeExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code.extension";
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nightvibes.appcode.extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -4164,8 +4170,8 @@
 				CODE_SIGN_ENTITLEMENTS = NodeExtension/extension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 87;
-				DEVELOPMENT_TEAM = 69R94YG49H;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4174,16 +4180,16 @@
 					"$(PROJECT_DIR)/Resources/Java/java-frameworks",
 				);
 				INFOPLIST_FILE = NodeExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code.extension";
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nightvibes.appcode.extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore thebaselab.VS-Code.extension";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.nightvibes.appcode.extension";
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "NodeExtension/NodeRunner/extension-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -4244,7 +4250,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -4301,7 +4307,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -4321,10 +4327,10 @@
 				CODE_SIGN_ENTITLEMENTS = "Code App.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 87;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"CodeApp/Preview Content\"";
-				DEVELOPMENT_TEAM = 69R94YG49H;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = NO;
@@ -4336,15 +4342,15 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = CodeApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 1.12.1;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
-				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nightvibes.appcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_STYLE = "non-global";
@@ -4367,10 +4373,10 @@
 				CODE_SIGN_ENTITLEMENTS = "Code App.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 87;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"CodeApp/Preview Content\"";
-				DEVELOPMENT_TEAM = 69R94YG49H;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = NO;
@@ -4383,17 +4389,17 @@
 				GCC_OPTIMIZATION_LEVEL = s;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = CodeApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 1.12.1;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
-				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nightvibes.appcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore thebaselab.VS-Code";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.nightvibes.appcode";
 				STRIP_STYLE = "non-global";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "CodeApp/Utilities/Code-Bridging-Header.h";
@@ -4410,11 +4416,11 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 69R94YG49H;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = thebaselab.CodeUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nightvibes.appcode.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -4430,11 +4436,11 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 69R94YG49H;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = thebaselab.CodeUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nightvibes.appcode.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;

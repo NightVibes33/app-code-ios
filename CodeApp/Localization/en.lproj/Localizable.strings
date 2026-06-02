@@ -1,24 +1,24 @@
 /* 
   Localizable.strings
-  Code App
+  App Code
 
   Created by Ken Chung on 6/12/2020.
   
 */
 
 "Welcome Message" =
-"# Code App
+"# App Code
 ##### **v1.12.1 (March 2026)**
 #### Start
-[New file](https://thebaselab.com/code/newfile)
-[Open file](https://thebaselab.com/code/openfile)
-[Open folder](https://thebaselab.com/code/openfolder)
+[New file](appcode://newfile)
+[Open file](appcode://openfile)
+[Open folder](appcode://openfolder)
 
 #### Help
-[Documentation](https://code.thebaselab.com)
-[GitHub](https://github.com/thebaselab/codeapp)
-[Email](mailto:support@thebaselab.com)
-[X](https://x.com/thebaselab)
+[Documentation](https://github.com/NightVibes33/app-code-ios)
+[GitHub](https://github.com/NightVibes33/app-code-ios)
+[Email](mailto:support@nightvibes.app)
+[X](https://x.com/NightVibes)
 ";
 
 "Changelog.message" =
@@ -328,7 +328,7 @@
   - Files or directories starting with a dot are now hidden by default
   - Ability to select items with a Two-Finger pan gesture
 - Other improvements
-  - You can now open files with Code App from Files app or other Apps directly
+  - You can now open files with App Code from Files app or other Apps directly
   - You can now hold the app icon from Home Screen to reveal recent documents
   - Fixed a typo
 ";

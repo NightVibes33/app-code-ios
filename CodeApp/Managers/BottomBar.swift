@@ -42,6 +42,7 @@ struct StatusBar: View {
         }
         .font(.system(size: 12))
         .foregroundColor(Color.init(id: "statusBar.foreground"))
-        .background(Color.init(id: "statusBar.background"))
+        .background(Color.init(id: "statusBar.background").opacity(0.72))
+        .appCodeGlassPanel(cornerRadius: 0)
     }
 }

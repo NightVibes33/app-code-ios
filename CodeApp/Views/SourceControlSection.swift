@@ -262,7 +262,11 @@ private struct MainSection: View {
 
                     Section {
                         Button(action: {
-                            try? onStageAllChanges()
+                            do {
+                                try onStageAllChanges()
+                            } catch {
+                                App.notificationManager.showErrorMessage(error.localizedDescription)
+                            }
                         }) {
                             Label("Stage All Changes", systemImage: "plus.circle")
                         }

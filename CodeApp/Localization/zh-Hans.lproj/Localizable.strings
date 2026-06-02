@@ -1,24 +1,24 @@
 /* 
   Localizable.strings
-  Code App
+  App Code
 
   Created by Ken Chung on 6/12/2020.
   
 */
 
 "Welcome Message" =
-"# Code App
+"# App Code
 ##### **v1.12.1 (2026 年 3 月)**
 #### 开始
-[新文件](https://thebaselab.com/code/newfile)
-[打开文件](https://thebaselab.com/code/openfile)
-[打开文件夹](https://thebaselab.com/code/openfolder)
+[新文件](appcode://newfile)
+[打开文件](appcode://openfile)
+[打开文件夹](appcode://openfolder)
 
 #### 支持
-[说明文件](https://code.thebaselab.com)
-[GitHub](https://github.com/thebaselab/codeapp)
-[邮箱](mailto:support@thebaselab.com)
-[X](https://x.com/thebaselab)
+[说明文件](https://github.com/NightVibes33/app-code-ios)
+[GitHub](https://github.com/NightVibes33/app-code-ios)
+[邮箱](mailto:support@nightvibes.app)
+[X](https://x.com/NightVibes)
 ";
 
 "Changelog.message" =
@@ -323,7 +323,7 @@
   - 现在默认隐藏以点开头的文件或目录
   - 能够以两指平移手势选择项目
 - 其他改进
-  - 您可以直接从文件应用程序或其他应用程序中使用 Code App 打开文件
+  - 您可以直接从文件应用程序或其他应用程序中使用 App Code 打开文件
   - 可以在主屏幕上按住应用程序图标以打开最近文档
 ";
 
@@ -378,7 +378,7 @@
 "Terminal Font Size" = "控制台字体大小";
 "Bracket Completion" = "自动输入括号";
 "Theme" = "主题";
-"Rate Code App" = "为 Code App 打分";
+"Rate App Code" = "为 App Code 打分";
 "About" = "关于";
 "Version" = "版本";
 
@@ -420,7 +420,7 @@
 "New Folder" = "新建文件夹";
 
 "The folder currently opened doesn't have a git repository." = "当前打开的文件夹没有 Git 存储库。";
-"Example: https://github.com/thebaselab/codeapp.git" = "例子: https://github.com/thebaselab/codeapp.git";
+"Example: https://github.com/NightVibes33/app-code-ios.git" = "例子: https://github.com/NightVibes33/app-code-ios.git";
 "Initialize Repository" = "初始化存储库";
 "Clone Repository" = "克隆存储库";
 "TERMINAL" = "终端";

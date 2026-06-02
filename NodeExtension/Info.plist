@@ -32,7 +32,7 @@
             $extensionItem.attachments,
             $attachment,
             (
-            ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.thebaselab.source"
+            ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.nightvibes.appcode.source"
             )
             ).@count == 1
             ).@count == 1
@@ -45,7 +45,7 @@
 	</dict>
 	<key>NSUserActivityTypes</key>
 	<array>
-		<string>com.thebaselab.codeapp.openEditor</string>
+		<string>com.nightvibes.appcode.openEditor</string>
 	</array>
 </dict>
 </plist>

@@ -1,24 +1,24 @@
 /* 
   Localizable.strings
-  Code App
+  App Code
 
   Created by Ken Chung on 6/12/2020.
   
 */
 
 "Welcome Message" =
-"# Code App
+"# App Code
 ##### **v1.12.1 (März 2026)**
 #### Start
-[Neue Datei](https://thebaselab.com/code/newfile)
-[Datei öffnen](https://thebaselab.com/code/openfile)
-[Ordner öffnen](https://thebaselab.com/code/openfolder)
+[Neue Datei](appcode://newfile)
+[Datei öffnen](appcode://openfile)
+[Ordner öffnen](appcode://openfolder)
 
 #### Hilfe
-[Dokumentation](https://code.thebaselab.com)
-[GitHub](https://github.com/thebaselab/codeapp)
-[E-Mail](mailto:support@thebaselab.com)
-[X](https://x.com/thebaselab)
+[Dokumentation](https://github.com/NightVibes33/app-code-ios)
+[GitHub](https://github.com/NightVibes33/app-code-ios)
+[E-Mail](mailto:support@nightvibes.app)
+[X](https://x.com/NightVibes)
 ";
 
 "Changelog.message" =
@@ -328,7 +328,7 @@
   - Files or directories starting with a dot are now hidden by default
   - Ability to select items with a Two-Finger pan gesture
 - Other improvements
-  - You can now open files with Code App from Files app or other Apps directly
+  - You can now open files with App Code from Files app or other Apps directly
   - You can now hold the app icon from Home Screen to reveal recent documents
   - Fixed a typo
 ";
@@ -384,7 +384,7 @@
 "Terminal Font Size" = "Terminal-Schriftgröße";
 "Bracket Completion" = "Klammervervollständigung";
 "Theme" = "Theme";
-"Rate Code App" = "Code App bewerten";
+"Rate App Code" = "App Code bewerten";
 "About" = "Über uns";
 "Version" = "Version";
 
@@ -426,7 +426,7 @@
 "New Folder" = "Neuer Ordner";
 
 "The folder currently opened doesn't have a git repository." = "Der aktuell geöffnete Ordner hat kein Git-Repository.";
-"Example: https://github.com/thebaselab/codeapp.git" = "Beispiel: https://github.com/thebaselab/codeapp.git";
+"Example: https://github.com/NightVibes33/app-code-ios.git" = "Beispiel: https://github.com/NightVibes33/app-code-ios.git";
 "Initialize Repository" = "Repository initialisieren";
 "Clone Repository" = "Repository klonen";
 "TERMINAL" = "TERMINAL";
@@ -448,7 +448,7 @@
 "Welcome" = "Willkommen";
 "Licenses" = "Lizenzen";
 "Version" = "Ausführung";
-"Code App by thebaselab" = "Code App von thebaselab";
+"App Code by NightVibes" = "App Code von NightVibes";
 "Themes" = "Themen";
 "Read-only Mode" = "schreibgeschützter Modus";
 "Show Welcome Page" = "Begrüßungsseite anzeigen";

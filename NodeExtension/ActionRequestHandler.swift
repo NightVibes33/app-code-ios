@@ -9,7 +9,7 @@ import CoreServices
 import SwiftWS
 
 func installNotificationObserver(){
-    let notificationName = "com.thebaselab.code.node.stop" as CFString
+    let notificationName = "com.nightvibes.appcode.node.stop" as CFString
     let notificationCenter = CFNotificationCenterGetDarwinNotifyCenter()
     
     CFNotificationCenterAddObserver(notificationCenter, nil,

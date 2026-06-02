@@ -29,6 +29,7 @@ struct CodeApp: App {
 }
 
 private func setup() {
+    NSUbiquitousKeyValueStore.default.synchronize()
     setupEnvironment()
     refreshNodeCommands()
     setupExtensionListener()
@@ -260,7 +261,7 @@ private func setupEnvironment() {
 }
 
 private func setupExtensionListener() {
-    let notificationName = "com.thebaselab.code.node.stdout" as CFString
+    let notificationName = "com.nightvibes.appcode.node.stdout" as CFString
     let notificationCenter = CFNotificationCenterGetDarwinNotifyCenter()
 
     CFNotificationCenterAddObserver(
@@ -275,7 +276,7 @@ private func setupExtensionListener() {
             ) in
 
             let sharedURL = FileManager.default.containerURL(
-                forSecurityApplicationGroupIdentifier: "group.com.thebaselab.code")!
+                forSecurityApplicationGroupIdentifier: "group.com.nightvibes.appcode")!
             let stdoutURL = sharedURL.appendingPathComponent("stdout")
 
             guard let data = try? Data(contentsOf: stdoutURL),

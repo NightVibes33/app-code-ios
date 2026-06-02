@@ -98,6 +98,7 @@ struct ActivityBar: View {
             ConfigurationToggleButton()
         }
         .frame(minWidth: 0, maxWidth: ACTIVITY_BAR_WIDTH, minHeight: 0, maxHeight: .infinity)
-        .background(Color.init(id: "activityBar.background"))
+        .background(Color.init(id: "activityBar.background").opacity(0.72))
+        .appCodeGlassPanel(cornerRadius: 0)
     }
 }

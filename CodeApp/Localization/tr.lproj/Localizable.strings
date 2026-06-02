@@ -1,24 +1,24 @@
 /* 
   Localizable.strings
-  Code App
+  App Code
 
   Created by Emir Ömer on 20/05/2026.
   
 */
 
 "Welcome Message" =
-"# Code App
+"# App Code
 ##### **v1.12.1 (Mart 2026)**
 #### Başlangıç
-[Yeni Dosya](https://thebaselab.com/code/newfile)
-[Dosya Aç](https://thebaselab.com/code/openfile)
-[Klasör Aç](https://thebaselab.com/code/openfolder)
+[Yeni Dosya](appcode://newfile)
+[Dosya Aç](appcode://openfile)
+[Klasör Aç](appcode://openfolder)
 
 #### Yardım
-[Dökümantasyon](https://code.thebaselab.com)
-[GitHub](https://github.com/thebaselab/codeapp)
-[E-Mail](mailto:support@thebaselab.com)
-[X](https://x.com/thebaselab)
+[Dökümantasyon](https://github.com/NightVibes33/app-code-ios)
+[GitHub](https://github.com/NightVibes33/app-code-ios)
+[E-Mail](mailto:support@nightvibes.app)
+[X](https://x.com/NightVibes)
 ";
 
 "Changelog.message" =
@@ -384,7 +384,7 @@
 "Terminal Font Size" = "Terminal Font Boyutu";
 "Bracket Completion" = "Parantez Tamamlama";
 "Theme" = "Tema";
-"Rate Code App" = "Code Uygulamasına Oy Ver";
+"Rate App Code" = "Code Uygulamasına Oy Ver";
 "About" = "Hakkında";
 "Version" = "Versiyon";
 
@@ -426,7 +426,7 @@
 "New Folder" = "Yeni Klasör";
 
 "The folder currently opened doesn't have a git repository." = "Şu anda açık olan klasörde Git deposu bulunmamaktadır.";
-"Example: https://github.com/thebaselab/codeapp.git" = "Örnek: https://github.com/thebaselab/codeapp.git";
+"Example: https://github.com/NightVibes33/app-code-ios.git" = "Örnek: https://github.com/NightVibes33/app-code-ios.git";
 "Initialize Repository" = "Repo İlk Kurulumunu Yap";
 "Clone Repository" = "Repo Kopyala";
 "TERMINAL" = "TERMİNAL";
@@ -447,7 +447,7 @@
 
 "Welcome" = "Hoş Geldin";
 "Licenses" = "Lisanslar";
-"Code App by thebaselab" = "Code App, thebaselab tarafından";
+"App Code by NightVibes" = "App Code, NightVibes tarafından";
 "Themes" = "Temalar";
 "Read-only Mode" = "Satır Oku Modu";
 "Show Welcome Page" = "Başlangıç Sayfasını Göster";

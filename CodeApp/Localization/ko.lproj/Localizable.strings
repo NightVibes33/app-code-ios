@@ -1,24 +1,24 @@
 /*
   Localizable.strings
-  Code App
+  App Code
 
   Created by Ken Chung on 6/12/2020.
   
 */
 
 "Welcome Message" =
-"# Code App
+"# App Code
 ##### **v1.12.1 (2026년 3월)**
 #### 시작
-[새 파일...](https://thebaselab.com/code/newfile)
-[파일 열기...](https://thebaselab.com/code/openfile)
-[폴더 열기...](https://thebaselab.com/code/openfolder)
+[새 파일...](appcode://newfile)
+[파일 열기...](appcode://openfile)
+[폴더 열기...](appcode://openfolder)
 
 #### 지원
-[문서](https://code.thebaselab.com)
-[깃헙(GitHub)](https://github.com/thebaselab/codeapp)
-[이메일(E-Mail)](mailto:support@thebaselab.com)
-[X](https://x.com/thebaselab)
+[문서](https://github.com/NightVibes33/app-code-ios)
+[깃헙(GitHub)](https://github.com/NightVibes33/app-code-ios)
+[이메일(E-Mail)](mailto:support@nightvibes.app)
+[X](https://x.com/NightVibes)
 ";
 
 "Changelog.message" =
@@ -382,7 +382,7 @@
 "Terminal Font Size" = "터미널 글꼴 크기";
 "Bracket Completion" = "괄호 자동 완성";
 "Theme" = "테마";
-"Rate Code App" = "Code App 평가하기";
+"Rate App Code" = "App Code 평가하기";
 "About" = "정보";
 "Version" = "버전";
 
@@ -424,7 +424,7 @@
 "New Folder" = "새 폴더";
 
 "The folder currently opened doesn't have a git repository." = "현재 열려 있는 폴더는 깃(Git) 저장소가 없습니다.";
-"Example: https://github.com/thebaselab/codeapp.git" = "예: https://github.com/thebaselab/codeapp.git";
+"Example: https://github.com/NightVibes33/app-code-ios.git" = "예: https://github.com/NightVibes33/app-code-ios.git";
 "Initialize Repository" = "저장소 초기화하기";
 "Clone Repository" = "저장소 복제하기";
 "TERMINAL" = "터미널";
@@ -446,7 +446,7 @@
 "Welcome" = "시작하기";
 "Licenses" = "라이선스";
 "Version" = "버전";
-"Code App by thebaselab" = "thebaselab의 Code App";
+"App Code by NightVibes" = "NightVibes의 App Code";
 "Themes" = "테마";
 "Read-only Mode" = "읽기 전용 모드";
 "Show Welcome Page" = "시작하기 화면 보기";

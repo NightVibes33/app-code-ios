@@ -49,16 +49,11 @@ struct CheckoutMenu: View {
                         if !App.gitTracks.isEmpty {
 
                             App.alertManager.showAlert(
-                                title: "Git checkout: Uncommitted Changes",
+                                title: "Git checkout blocked",
                                 message:
-                                    "Uncommitted changes will be lost. Do you wish to proceed?",
+                                    "Commit, stash, or revert local changes before switching branches so App Code does not overwrite your work.",
                                 content: AnyView(
                                     Group {
-                                        Button("Checkout", role: .destructive) {
-                                            Task {
-                                                try await checkout(destination: destination)
-                                            }
-                                        }
                                         Button("common.cancel", role: .cancel) {}
                                     }
                                 )

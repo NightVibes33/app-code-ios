@@ -39,4 +39,18 @@ extension URL {
         relComponents.append(contentsOf: destComponents[i...])
         return relComponents.joined(separator: "/")
     }
+
+    func pathRelativeTo(_ base: URL) -> String? {
+        let targetPath = self.path
+        let basePath = (base.hasDirectoryPath ? base : base.deletingLastPathComponent()).path
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let normalizedBase = "/" + basePath
+        guard targetPath.hasPrefix(normalizedBase) else {
+            return nil
+        }
+        let relative = targetPath.dropFirst(normalizedBase.count)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        return relative.isEmpty ? self.lastPathComponent : String(relative)
+    }
+
 }

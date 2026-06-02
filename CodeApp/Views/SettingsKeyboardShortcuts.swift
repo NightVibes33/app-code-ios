@@ -15,7 +15,7 @@ struct SettingsKeyboardShortcuts: View {
     @State var storedShortcuts: [String: [GCKeyCode]] = [:]
 
     init() {
-        if let result = UserDefaults.standard.value(forKey: "thebaselab.custom.keyboard.shortcuts")
+        if let result = UserDefaults.standard.value(forKey: "com.nightvibes.appcode.custom.keyboard.shortcuts")
             as? [String: [GCKeyCode]]
         {
             _storedShortcuts = State(initialValue: result)
@@ -86,7 +86,7 @@ struct SettingsKeyboardShortcuts: View {
         .background(Color(id: "sideBar.background"))
         .onAppear {
             if let result = UserDefaults.standard.value(
-                forKey: "thebaselab.custom.keyboard.shortcuts") as? [String: [GCKeyCode]]
+                forKey: "com.nightvibes.appcode.custom.keyboard.shortcuts") as? [String: [GCKeyCode]]
             {
                 storedShortcuts = result
             }
@@ -195,7 +195,7 @@ private struct ShortcutPreview: View {
                 return
             }
             // Save the shortcuts
-            let userDefaultskey = "thebaselab.custom.keyboard.shortcuts"
+            let userDefaultskey = "com.nightvibes.appcode.custom.keyboard.shortcuts"
 
             if var result = UserDefaults.standard.value(forKey: userDefaultskey)
                 as? [String: [GCKeyCode]]

@@ -9,7 +9,7 @@ import Foundation
 
 class Resources {
     static let appGroupSharedLibrary = FileManager.default.containerURL(
-        forSecurityApplicationGroupIdentifier: "group.com.thebaselab.code")
+        forSecurityApplicationGroupIdentifier: "group.com.nightvibes.appcode")
 
     static let clangLib = URL(fileURLWithPath: Bundle.main.resourcePath!).appendingPathComponent(
         "ClangLib")

@@ -308,7 +308,7 @@ class TerminalInstance: NSObject, WKScriptMessageHandler, WKNavigationDelegate, 
             switch result["Input"] as! String {
             case "help":
                 let messages = [
-                    "Code App's emulated terminal is built on top of Nicolas Holzschuch (GitHub: holzschu)'s ios_system. It has many Unix commands: ls, pwd, tar, mkdir, grep... You can redirect command output to a file with \">\" and pipe commands with \"|\". In addition, there is support for Node.js and Python runtime.",
+                    "App Code's emulated terminal is built on top of Nicolas Holzschuch (GitHub: holzschu)'s ios_system. It has many Unix commands: ls, pwd, tar, mkdir, grep... You can redirect command output to a file with \">\" and pipe commands with \"|\". In addition, there is support for Node.js and Python runtime.",
                     "\n",
                     "- Install packages with pip and npm (not all modules work on iOS)",
                     "- Run scripts with python and node",
@@ -339,7 +339,7 @@ class TerminalInstance: NSObject, WKScriptMessageHandler, WKNavigationDelegate, 
                 executeScript("localEcho.printWide(\(commandList));")
                 self.readLine()
             case let x where x.hasPrefix("git"):
-                let message = "git is unavailable in Code App. Use lg2 instead."
+                let message = "git is unavailable in App Code. Use lg2 instead."
                 executeScript("localEcho.println(`\(message)`);")
                 self.readLine()
             case let x where x.hasPrefix("code"):
@@ -471,7 +471,7 @@ class TerminalInstance: NSObject, WKScriptMessageHandler, WKNavigationDelegate, 
         super.init()
         self.executor = Executor(
             root: root,
-            sessionIdentifier: "com.thebaselab.terminal.\(id.uuidString)",
+            sessionIdentifier: "com.NightVibes.terminal.\(id.uuidString)",
             onStdout: { [weak self] data in
                 self?.writeToLocalTerminal(data: data)
             },

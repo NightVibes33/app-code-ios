@@ -443,7 +443,11 @@ public final class Repository {
         if (analysis.contains(.upToDate)){
             // Do nothing
             return
-        }else if (analysis.contains(.fastForward) || analysis.contains(.unborn)){
+        }
+
+        try ensureWorkingTreeIsCleanBeforeIntegratingRemoteChanges()
+
+        if (analysis.contains(.fastForward) || analysis.contains(.unborn)){
             // Fast-forward branch
             let newReference = try updateReferenceTarget(
                 reference: localBranch,
@@ -451,7 +455,7 @@ public final class Repository {
                 message: "merge \(branch.name): Fast-forward"
             )
             
-            try self.checkout(newReference, strategy: .Force).get()
+            try self.checkout(newReference, strategy: .Safe).get()
         }else if analysis.contains(.normal) {
             // Do normal merge
             let localTree = try safeTreeForCommitId(localBranch.commit.oid).get()
@@ -514,7 +518,7 @@ public final class Repository {
             
             let updatedBranch = try self.currentBranch()
             
-            try self.checkout(updatedBranch, strategy: .Force).get()
+            try self.checkout(updatedBranch, strategy: .Safe).get()
             
         }else {
             throw NSError(
@@ -527,6 +531,23 @@ public final class Repository {
         }
     }
 	
+    private func ensureWorkingTreeIsCleanBeforeIntegratingRemoteChanges() throws {
+        let entries = try status(options: [
+            .recurseUntrackedDirs, .includeUntracked, .excludeSubmodules,
+        ]).get()
+
+        if entries.contains(where: { !$0.status.isEmpty }) {
+            throw NSError(
+                domain: libGit2ErrorDomain,
+                code: 1,
+                userInfo: [
+                    NSLocalizedDescriptionKey:
+                        "Pull blocked: commit, stash, or revert local changes before pulling so App Code does not overwrite your work.",
+                ]
+            )
+        }
+    }
+
 	// MARK: - Creating Repositories
 
 	/// Create a new repository at the given URL.

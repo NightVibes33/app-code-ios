@@ -1,6 +1,6 @@
 //
 //  SettingsView.swift
-//  Code App
+//  App Code
 //
 //  Created by Ken Chung on 5/12/2020.
 //
@@ -69,31 +69,11 @@ struct SettingsView: View {
                             value: $terminalOptions.value.fontSize, in: 8...24)
 
                         Button(action: {
-                            guard let url = URL(string: "https://github.com/thebaselab/codeapp")
+                            guard let url = URL(string: "https://github.com/NightVibes33/app-code-ios")
                             else { return }
                             UIApplication.shared.open(url)
                         }) {
                             Text("Open an Issue on GitHub")
-                        }
-
-                        Button(action: {
-                            guard let url = URL(string: "mailto:support@thebaselab.com")
-                            else { return }
-                            UIApplication.shared.open(url)
-                        }) {
-                            Text("Send us an Email")
-                        }
-
-                        Button(action: {
-                            guard
-                                let writeReviewURL = URL(
-                                    string:
-                                        "https://apps.apple.com/app/id1512938504?action=write-review"
-                                )
-                            else { return }
-                            UIApplication.shared.open(writeReviewURL)
-                        }) {
-                            Text(NSLocalizedString("Rate Code App", comment: ""))
                         }
                     }
 
@@ -306,7 +286,7 @@ struct SettingsView: View {
                         )
                         Link(
                             "code.and.privacy",
-                            destination: URL(string: "https://thebaselab.com/privacypolicies/")!)
+                            destination: URL(string: "https://github.com/NightVibes33/app-code-ios/blob/main/PRIVACY.md")!)
 
                         NavigationLink(
                             destination: SimpleMarkDownView(
@@ -355,7 +335,7 @@ struct SettingsView: View {
                                 }, secondaryButton: .cancel())
                         }
 
-                        Text("Code App by thebaselab").font(.footnote).foregroundColor(.gray)
+                        Text("App Code by NightVibes").font(.footnote).foregroundColor(.gray)
                             .onTapGesture(
                                 count: 2,
                                 perform: {

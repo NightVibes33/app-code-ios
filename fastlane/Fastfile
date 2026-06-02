@@ -1,33 +1,30 @@
+require "base64"
+
 default_platform(:ios)
 
 DEVELOPER_APP_ID = ENV["DEVELOPER_APP_ID"]
-DEVELOPER_APP_IDENTIFIER = ENV["DEVELOPER_APP_IDENTIFIER"]
-DEVELOPER_APP_EXTENSION_IDENTIFIER = ENV["DEVELOPER_APP_EXTENSION_IDENTIFIER"]
-TEMP_KEYCHAIN_USER = ENV["TEMP_KEYCHAIN_USER"]
-TEMP_KEYCHAIN_PASSWORD = ENV["TEMP_KEYCHAIN_PASSWORD"]
+DEVELOPER_APP_IDENTIFIER = ENV["DEVELOPER_APP_IDENTIFIER"] || "com.nightvibes.appcode"
+DEVELOPER_APP_EXTENSION_IDENTIFIER = ENV["DEVELOPER_APP_EXTENSION_IDENTIFIER"] || "com.nightvibes.appcode.extension"
+DEVELOPER_PORTAL_TEAM_ID = ENV["DEVELOPER_PORTAL_TEAM_ID"]
+TEMP_KEYCHAIN_USER = ENV["TEMP_KEYCHAIN_USER"] || "app-code-ci"
+TEMP_KEYCHAIN_PASSWORD = ENV["TEMP_KEYCHAIN_PASSWORD"] || "app-code-ci-password"
 APPLE_ISSUER_ID = ENV["APPLE_ISSUER_ID"]
 APPLE_KEY_ID = ENV["APPLE_KEY_ID"]
 APPLE_KEY_CONTENT = ENV["APPLE_KEY_CONTENT"]
 GIT_AUTHORIZATION = ENV["GIT_AUTHORIZATION"]
-
-JUDGE0_KEY = ENV["JUDGE0_KEY"]
-JUDGE0_ENDPOINT = ENV["JUDGE0_ENDPOINT"]
 DISTRIBUTE_EXTERNAL = ENV["DISTRIBUTE_EXTERNAL"] == "true"
-XCODE_PATH = ENV["XCODE_PATH"]
+XCODE_PATH = ENV["XCODE_PATH"] || "/Applications/Xcode_26.5.app"
+
+# App Code is local-only; keep upstream Judge0 remote execution disabled.
+JUDGE0_KEY = ""
+JUDGE0_ENDPOINT = ""
 
 def delete_temp_keychain(name)
-  delete_keychain(
-    name: name
-  ) if File.exist? File.expand_path("~/Library/Keychains/#{name}-db")
+  delete_keychain(name: name) if File.exist? File.expand_path("~/Library/Keychains/#{name}-db")
 end
 
 def create_temp_keychain(name, password)
-  create_keychain(
-    name: name,
-    password: password,
-    unlock: false,
-    timeout: 0
-  )
+  create_keychain(name: name, password: password, unlock: false, timeout: 0)
 end
 
 def ensure_temp_keychain(name, password)
@@ -35,9 +32,19 @@ def ensure_temp_keychain(name, password)
   create_temp_keychain(name, password)
 end
 
+def ensure_resources
+  Dir.chdir("..") do
+    sh("./scripts/bootstrap_resources.sh")
+    sh(%Q[printf 'let JUDGE0_ENDPOINT = ""
+let JUDGE0_KEY = ""
+' > CodeApp/Constants/Secrets.swift])
+  end
+end
+
 platform :ios do
   lane :beta do
     xcode_select(XCODE_PATH)
+    ensure_resources
 
     keychain_name = TEMP_KEYCHAIN_USER
     keychain_password = TEMP_KEYCHAIN_PASSWORD
@@ -48,27 +55,25 @@ platform :ios do
     api_key = app_store_connect_api_key(
       key_id: APPLE_KEY_ID,
       issuer_id: APPLE_ISSUER_ID,
-      key_content: APPLE_KEY_CONTENT,            
-      duration: 1100,            
+      key_content: APPLE_KEY_CONTENT,
+      duration: 1100,
       in_house: false
     )
-    
+
+    next_build = latest_testflight_build_number(
+      app_identifier: DEVELOPER_APP_IDENTIFIER,
+      api_key: api_key
+    ) + 1
+
     increment_build_number(
       xcodeproj: "Code.xcodeproj",
-      build_number: latest_testflight_build_number + 1
+      build_number: next_build
     )
 
-    Dir.chdir("..") do
-      sh("./downloadFrameworks.sh")
-      sh(%Q[echo 'let JUDGE0_ENDPOINT = "#{JUDGE0_ENDPOINT}"' > CodeApp/Constants/Secrets.swift])
-      sh(%Q[echo 'let JUDGE0_KEY = "#{JUDGE0_KEY}"' >> CodeApp/Constants/Secrets.swift])
-    end
-
-    # run_tests(scheme: "Code UI")
-
     match(
-      type: 'appstore',
-      app_identifier: ["#{DEVELOPER_APP_IDENTIFIER}", "#{DEVELOPER_APP_EXTENSION_IDENTIFIER}"],
+      type: "appstore",
+      app_identifier: [DEVELOPER_APP_IDENTIFIER, DEVELOPER_APP_EXTENSION_IDENTIFIER],
+      team_id: DEVELOPER_PORTAL_TEAM_ID,
       git_basic_authorization: Base64.strict_encode64(GIT_AUTHORIZATION),
       readonly: true,
       keychain_name: keychain_name,
@@ -81,30 +86,31 @@ platform :ios do
       project: "Code.xcodeproj",
       scheme: "Code App",
       export_method: "app-store",
+      output_name: "AppCode",
+      xcargs: "DEVELOPMENT_TEAM=#{DEVELOPER_PORTAL_TEAM_ID}"
     )
 
     pilot(
-      apple_id: "#{DEVELOPER_APP_ID}",
-      app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
+      apple_id: DEVELOPER_APP_ID,
+      app_identifier: DEVELOPER_APP_IDENTIFIER,
       distribute_external: DISTRIBUTE_EXTERNAL,
       notify_external_testers: DISTRIBUTE_EXTERNAL,
-      ipa: "./Code.ipa",
-      changelog: "GitHub Action automated build. For detailed changes, " + 
-      "visit https://github.com/thebaselab/codeapp.\n" + 
-      "\nGenerated Changelog:\n" + changelog,
+      ipa: "./AppCode.ipa",
+      changelog: "GitHub Action automated build. For detailed changes, visit https://github.com/NightVibes33/app-code-ios.
+
+Generated Changelog:
+" + changelog,
       groups: (DISTRIBUTE_EXTERNAL ? ["Public"] : []),
-      wait_processing_interval: 300
+      wait_processing_interval: 300,
+      api_key: api_key
     )
-    
 
     delete_temp_keychain(keychain_name)
   end
 
   lane :tests do
     xcode_select(XCODE_PATH)
-    Dir.chdir("..") do
-      sh("./downloadFrameworks.sh")
-    end
+    ensure_resources
     run_tests(scheme: "Code UI")
   end
 end

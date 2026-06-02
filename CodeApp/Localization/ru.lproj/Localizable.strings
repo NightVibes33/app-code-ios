@@ -1,24 +1,24 @@
 /*
   Localizable.strings
-  Code App
+  App Code
 
   Created by Alexey Krainev on 7/3/2025.
   
 */
 
 "Welcome Message" =
-"# Code App
+"# App Code
 ##### **v1.12.1 (Март 2026)**
 #### Начало
-[Новый файл](https://thebaselab.com/code/newfile)
-[Открыть файл](https://thebaselab.com/code/openfile)
-[Открыть папку](https://thebaselab.com/code/openfolder)
+[Новый файл](appcode://newfile)
+[Открыть файл](appcode://openfile)
+[Открыть папку](appcode://openfolder)
 
 #### Помощь
-[Документация](https://code.thebaselab.com)
-[GitHub](https://github.com/thebaselab/codeapp)
-[Email](mailto:support@thebaselab.com)
-[X](https://x.com/thebaselab)
+[Документация](https://github.com/NightVibes33/app-code-ios)
+[GitHub](https://github.com/NightVibes33/app-code-ios)
+[Email](mailto:support@nightvibes.app)
+[X](https://x.com/NightVibes)
 ";
 
 "Changelog.message" =
@@ -327,7 +327,7 @@
   - Файлы или директории, начинающиеся с точки, теперь скрыты по умолчанию
   - Возможность выбора элементов с помощью жеста двумя пальцами
 - Другие улучшения
-  - Теперь вы можете открывать файлы в Code App из приложения «Файлы» или других приложений напрямую
+  - Теперь вы можете открывать файлы в App Code из приложения «Файлы» или других приложений напрямую
   - Теперь вы можете удерживать значок приложения на главном экране, чтобы увидеть недавние документы
   - Исправлена опечатка
 ";
@@ -423,7 +423,7 @@
 "Terminal Font Size" = "Размер шрифта консоли";
 "Bracket Completion" = "Автозакрытие скобок";
 "Theme" = "Тема";
-"Rate Code App" = "Оценить Code App";
+"Rate App Code" = "Оценить App Code";
 "About" = "О приложении";
 "Version" = "Версия";
 
@@ -465,7 +465,7 @@
 "New Folder" = "Новая папка";
 
 "The folder currently opened doesn't have a git repository." = "В текущей папке нет git-репозитория.";
-"Example: https://github.com/thebaselab/codeapp.git" = "Пример: https://github.com/thebaselab/codeapp.git";
+"Example: https://github.com/NightVibes33/app-code-ios.git" = "Пример: https://github.com/NightVibes33/app-code-ios.git";
 "Initialize Repository" = "Инициализировать";
 "Clone Repository" = "Клонировать репозиторий";
 "TERMINAL" = "ТЕРМИНАЛ";
