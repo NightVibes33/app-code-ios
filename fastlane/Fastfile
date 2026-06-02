@@ -41,10 +41,18 @@ let JUDGE0_KEY = ""
   end
 end
 
+def resolve_and_patch_packages
+  Dir.chdir("..") do
+    sh(%Q[xcodebuild -resolvePackageDependencies -project Code.xcodeproj -scheme "Code App" -derivedDataPath build/DerivedData])
+    sh("./scripts/patch_swift_packages.sh build/DerivedData")
+  end
+end
+
 platform :ios do
   lane :beta do
     xcode_select(XCODE_PATH)
     ensure_resources
+    resolve_and_patch_packages
 
     keychain_name = TEMP_KEYCHAIN_USER
     keychain_password = TEMP_KEYCHAIN_PASSWORD
@@ -111,6 +119,7 @@ Generated Changelog:
   lane :tests do
     xcode_select(XCODE_PATH)
     ensure_resources
+    resolve_and_patch_packages
     run_tests(scheme: "Code UI")
   end
 end

@@ -342,8 +342,8 @@ class LocalGitServiceProvider: GitServiceProvider {
                 (entry.indexToWorkDir?.oldFile?.path, entry.indexToWorkDir?.oldFile?.oid),
                 (entry.indexToWorkDir?.newFile?.path, entry.indexToWorkDir?.newFile?.oid),
             ]
-            if let oid = candidates.first(where: { candidatePath, oid in
-                candidatePath == path && oid != nil
+            if let oid = candidates.first(where: { candidate in
+                candidate.0 == path && candidate.1 != nil
             })?.1 {
                 return oid
             }

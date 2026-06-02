@@ -8,6 +8,9 @@ IPA_NAME="${IPA_NAME:-AppCode-unsigned.ipa}"
 
 ./scripts/bootstrap_resources.sh
 
+xcodebuild -resolvePackageDependencies -project Code.xcodeproj -scheme "$SCHEME" -derivedDataPath "$DERIVED_DATA_PATH"
+./scripts/patch_swift_packages.sh "$DERIVED_DATA_PATH"
+
 rm -rf build/Payload "$IPA_NAME"
 mkdir -p build/Payload
 

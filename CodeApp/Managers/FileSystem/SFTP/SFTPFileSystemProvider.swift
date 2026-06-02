@@ -344,9 +344,8 @@ extension SFTPFileSystemProvider: FileSystemProvider {
 
     func removeItem(at: URL, completionHandler: @escaping (Error?) -> Void) {
         queue.async {
-            let attributes = self.session.sftp.infoForFile(atPath: at.path)
             let success: Bool
-            if attributes?.isDirectory == true {
+            if self.session.sftp.directoryExists(atPath: at.path) {
                 success = self.session.sftp.removeDirectory(atPath: at.path)
             } else {
                 success = self.session.sftp.removeFile(atPath: at.path)
