@@ -96,6 +96,8 @@ platform :ios do
       scheme: "Code App",
       export_method: "app-store",
       output_name: "AppCode",
+      derived_data_path: "build/DerivedData",
+      skip_package_dependencies_resolution: true,
       xcargs: "DEVELOPMENT_TEAM=#{DEVELOPER_PORTAL_TEAM_ID}"
     )
 

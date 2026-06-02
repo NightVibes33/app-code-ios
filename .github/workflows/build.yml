@@ -31,7 +31,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: Resources
-          key: app-code-resources-${{ runner.os }}-${{ hashFiles('downloadFrameworks.sh') }}
+          key: app-code-resources-${{ runner.os }}-${{ hashFiles('downloadFrameworks.sh', 'scripts/bootstrap_resources.sh') }}
           restore-keys: |
             app-code-resources-${{ runner.os }}-
 
@@ -40,10 +40,10 @@ jobs:
         with:
           path: |
             ~/Library/Caches/org.swift.swiftpm
-            ~/Library/Developer/Xcode/DerivedData
             build/DerivedData
-          key: app-code-xcode-${{ runner.os }}-${{ hashFiles('Code.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'SwiftGit2/Package.resolved', 'SwiftWS/Package.resolved') }}
+          key: app-code-xcode-${{ runner.os }}-${{ hashFiles('Code.xcodeproj/project.pbxproj', 'Code.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'SwiftGit2/Package.resolved', 'SwiftWS/Package.resolved') }}-${{ github.sha }}
           restore-keys: |
+            app-code-xcode-${{ runner.os }}-${{ hashFiles('Code.xcodeproj/project.pbxproj', 'Code.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'SwiftGit2/Package.resolved', 'SwiftWS/Package.resolved') }}-
             app-code-xcode-${{ runner.os }}-
 
       - name: Bootstrap runtime resources
@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: vendor/bundle
-          key: app-code-bundle-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+          key: app-code-bundle-${{ runner.os }}-${{ hashFiles('Gemfile', 'Gemfile.lock') }}
           restore-keys: |
             app-code-bundle-${{ runner.os }}-
 
