@@ -29,7 +29,7 @@
     <p>App Code does not sell personal data and does not include third-party advertising tracking. This fork disables the upstream Judge0 remote execution panel by default.</p>
 
     <h2>Sync</h2>
-    <p>Remote host entries may sync through Apple's iCloud key-value store when iCloud is enabled for the signed-in Apple ID. Secrets and Git credentials are not intentionally mirrored through that setting sync path.</p>
+    <p>App Code stores remote host entries locally on the device. Secrets and Git credentials remain local/keychain-backed and are not intentionally mirrored through iCloud.</p>
 
     <h2>User-Controlled Services</h2>
     <p>Users may connect to Git, SSH, SFTP, package registries, or other development services they configure inside the app. Those services are controlled by the user and governed by their own privacy policies.</p>

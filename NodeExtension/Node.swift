@@ -7,7 +7,7 @@
 
 import Foundation
 
-let sharedURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.nightvibes.appcode")!
+let sharedURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.app.ish.iSH.39A8Q3T3TR")!
 
 class NodeLauncher {
     static let shared = NodeLauncher()

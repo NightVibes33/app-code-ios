@@ -10,7 +10,7 @@ Reviewed on 2026-06-02 from `thebaselab/codeapp` recent created/updated issues a
 | #1326 / #1308 / #1322 stage and commit actions fail or silently do nothing | Source-control plus/stage UI looked inert | Stage/unstage controls now surface synchronous errors instead of swallowing them; diff OID lookup checks both head-to-index and index-to-workdir status entries. |
 | #1324 Cannot copy relative path | Folder relative path copying failed without active editor context | Copy Relative Path falls back to the workspace root and path-based relative computation. |
 | #1323 SFTP directory delete says unable to perform | SFTP remove always called file deletion | SFTP deletion now checks remote attributes and calls directory deletion for directories. |
-| #1278 Settings sync via iCloud | Remote hosts had to be re-created per device | Remote host list is mirrored through `NSUbiquitousKeyValueStore`; credentials remain local/keychain-backed. |
+| #1278 Settings sync via iCloud | Remote hosts had to be re-created per device | Deferred for TestFlight signing because Apple portal iCloud/App Group profiles were not available; remote hosts remain local-only. |
 | #1279 iPadOS 26 UI modernization | Users asked for iPadOS 26 polish | Main shell surfaces now use an iOS 26 Liquid Glass helper and deployment target is iOS 26.0. |
 | Local-only positioning | User requested no cloud runtime | Upstream Judge0 remote-execution extension is disabled and Fastlane writes empty Judge0 secrets. |
 | #1297 forked builds missing resources | Forked builds missed Node/Java/WASM resources | CI now caches `Resources` and validates runtime/framework folders before building. |

@@ -9,29 +9,10 @@ import Foundation
 
 private enum AppCodeSyncedSettings {
     static let remoteHostsKey = "remote.hosts"
-    static let syncEnabledKey = "appcode.settingsSyncEnabled"
 
-    static var isEnabled: Bool {
-        UserDefaults.standard.object(forKey: syncEnabledKey) as? Bool ?? true
-    }
+    static func syncFromCloudIfNeeded() {}
 
-    static func syncFromCloudIfNeeded() {
-        guard isEnabled else { return }
-        let store = NSUbiquitousKeyValueStore.default
-        store.synchronize()
-        if UserDefaults.standard.data(forKey: remoteHostsKey) == nil,
-            let cloudData = store.data(forKey: remoteHostsKey)
-        {
-            UserDefaults.standard.set(cloudData, forKey: remoteHostsKey)
-        }
-    }
-
-    static func mirrorRemoteHosts(_ data: Data) {
-        guard isEnabled else { return }
-        let store = NSUbiquitousKeyValueStore.default
-        store.set(data, forKey: remoteHostsKey)
-        store.synchronize()
-    }
+    static func mirrorRemoteHosts(_ data: Data) {}
 }
 
 extension UserDefaults {

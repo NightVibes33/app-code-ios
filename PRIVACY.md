@@ -8,7 +8,7 @@ App Code does not sell personal data and does not include third-party advertisin
 
 ## Sync
 
-Remote host entries may sync through Apple's iCloud key-value store when iCloud is enabled for the signed-in Apple ID. Secrets and Git credentials are not intentionally mirrored through that setting sync path.
+App Code stores remote host entries locally on the device. Secrets and Git credentials remain local/keychain-backed and are not intentionally mirrored through iCloud.
 
 ## User-controlled services
 

@@ -18,8 +18,8 @@ Required default identifiers:
 
 - app bundle ID: `com.nightvibes.appcode`
 - extension bundle ID: `com.nightvibes.appcode.extension`
-- app group: `group.com.nightvibes.appcode`
-- iCloud KVS: `$(TeamIdentifierPrefix)com.nightvibes.appcode`
+- app group: `group.app.ish.iSH.39A8Q3T3TR`
+- iCloud KVS: disabled for TestFlight signing
 
 Required secrets:
 

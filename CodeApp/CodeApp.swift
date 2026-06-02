@@ -29,7 +29,6 @@ struct CodeApp: App {
 }
 
 private func setup() {
-    NSUbiquitousKeyValueStore.default.synchronize()
     setupEnvironment()
     refreshNodeCommands()
     setupExtensionListener()
@@ -276,7 +275,7 @@ private func setupExtensionListener() {
             ) in
 
             let sharedURL = FileManager.default.containerURL(
-                forSecurityApplicationGroupIdentifier: "group.com.nightvibes.appcode")!
+                forSecurityApplicationGroupIdentifier: "group.app.ish.iSH.39A8Q3T3TR")!
             let stdoutURL = sharedURL.appendingPathComponent("stdout")
 
             guard let data = try? Data(contentsOf: stdoutURL),
