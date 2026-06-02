@@ -6,6 +6,9 @@ Resources/NodeJS/NodeMobile.xcframework
 Resources/cpython
 Resources/Java/java-frameworks
 Resources/NMSSH.xcframework
+Resources/Term/openssl.xcframework
+Resources/Term/libssh2.xcframework
+Resources/Term/ssh_cmd.xcframework
 Resources/python-lsp
 Resources/java-lsp
 Resources/monaco-textmate.bundle

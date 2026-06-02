@@ -90,6 +90,10 @@ platform :ios do
       api_key: api_key
     )
 
+    Dir.chdir("..") do
+      sh("./scripts/prepare_third_party_sdks.sh")
+    end
+
     gym(
       configuration: "Release",
       project: "Code.xcodeproj",
