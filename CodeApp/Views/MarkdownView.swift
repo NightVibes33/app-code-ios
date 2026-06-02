@@ -51,8 +51,27 @@ struct ChangeLogView: View {
     }
 }
 
-struct WelcomeView: UIViewRepresentable {
-    @EnvironmentObject var themeManager: ThemeManager
+private struct WelcomeRecentFolder: Identifiable {
+    let id: Int
+    let name: String
+    let path: String
+    let url: URL
+}
+
+private struct WelcomeAction: Identifiable {
+    let id: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+    let systemImage: String
+    let isPrimary: Bool
+    let action: () -> Void
+}
+
+struct WelcomeView: View {
+    @SceneStorage("activitybar.selected.item") private var activeItemId: String = DefaultUIState.ACTIVITYBAR_SELECTED_ITEM
+    @SceneStorage("sidebar.visible") private var isSideBarVisible: Bool = DefaultUIState.SIDEBAR_VISIBLE
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let onCreateNewFile: () -> Void
     let onSelectFolderAsWorkspaceStorage: (URL) -> Void
@@ -60,92 +79,242 @@ struct WelcomeView: UIViewRepresentable {
     let onSelectFile: () -> Void
     let onNavigateToCloneSection: () -> Void
 
-    func updateUIView(_ uiView: MarkdownView, context: Context) {
-        uiView.changeBackgroundColor(color: UIColor(Color.init(id: "editor.background")))
-        return
-    }
-
-    func makeCoordinator() -> WelcomeView.Coordinator {
-        Coordinator(self)
-    }
-
-    class Coordinator: NSObject, UITextViewDelegate, MFMailComposeViewControllerDelegate {
-        var control: WelcomeView
-
-        init(_ control: WelcomeView) {
-            self.control = control
-            super.init()
-
+    private var recentFolders: [WelcomeRecentFolder] {
+        guard let data = UserDefaults.standard.value(forKey: "recentFolder") as? [Data] else {
+            return []
         }
 
+        return data.indices.reversed().compactMap { index in
+            var isStale = false
+            guard let url = try? URL(resolvingBookmarkData: data[index], bookmarkDataIsStale: &isStale) else {
+                return nil
+            }
+
+            return WelcomeRecentFolder(
+                id: index,
+                name: url.lastPathComponent.isEmpty ? url.path : url.lastPathComponent,
+                path: url.deletingLastPathComponent().path,
+                url: url
+            )
+        }
     }
 
-    func loadMd(md: MarkdownView) {
-        var content = NSLocalizedString("Welcome Message", comment: "")
-        if let datas = UserDefaults.standard.value(forKey: "recentFolder") as? [Data] {
-            var recentFolders = "\n"
+    private var actions: [WelcomeAction] {
+        [
+            WelcomeAction(
+                id: "new-file",
+                title: "New File",
+                subtitle: "Start a blank file in this workspace.",
+                systemImage: "doc.badge.plus",
+                isPrimary: true,
+                action: onCreateNewFile
+            ),
+            WelcomeAction(
+                id: "open-folder",
+                title: "Open Folder",
+                subtitle: "Switch to another local workspace.",
+                systemImage: "folder.badge.gearshape",
+                isPrimary: false,
+                action: onSelectFolder
+            ),
+            WelcomeAction(
+                id: "open-file",
+                title: "Open File",
+                subtitle: "Pick a single file from Files.",
+                systemImage: "doc.text.magnifyingglass",
+                isPrimary: false,
+                action: onSelectFile
+            ),
+            WelcomeAction(
+                id: "clone",
+                title: "Clone Repo",
+                subtitle: "Open Source Control for GitHub or SSH.",
+                systemImage: "arrow.down.doc.fill",
+                isPrimary: false,
+                action: showClonePanel
+            ),
+        ]
+    }
 
-            for i in datas.indices.reversed() {
-                var isStale = false
-                if let newURL = try? URL(
-                    resolvingBookmarkData: datas[i], bookmarkDataIsStale: &isStale)
-                {
-                    recentFolders =
-                        "\n[\(newURL.lastPathComponent)](appcode://previousFolder/\(i))"
-                        + recentFolders
+    private var gridColumns: [GridItem] {
+        let minWidth: CGFloat = dynamicTypeSize.isAccessibilitySize ? 240 : 170
+        return [GridItem(.adaptive(minimum: minWidth), spacing: 12)]
+    }
+
+    private func showClonePanel() {
+        activeItemId = "SOURCE_CONTROL"
+        isSideBarVisible = true
+        onNavigateToCloneSection()
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                header
+                actionGrid
+                recentSection
+            }
+            .frame(maxWidth: 920, alignment: .leading)
+            .padding(.horizontal, horizontalSizeClass == .compact ? 20 : 40)
+            .padding(.vertical, horizontalSizeClass == .compact ? 24 : 42)
+        }
+        .background(welcomeBackground)
+    }
+
+    private var welcomeBackground: some View {
+        ZStack {
+            Color(id: "editor.background")
+            LinearGradient(
+                colors: [
+                    Color(id: "button.background").opacity(0.28),
+                    Color(id: "editor.background").opacity(0.92),
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+        .ignoresSafeArea()
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 14) {
+                Image(systemName: "chevron.left.forwardslash.chevron.right")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundColor(Color(id: "activityBar.foreground"))
+                    .frame(width: 54, height: 54)
+                    .background(Color(id: "button.background").opacity(0.32), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .appCodeGlassPanel(cornerRadius: 18)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("App Code")
+                        .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                        .foregroundColor(Color("T1"))
+                    Text("Build, edit, run, and ship from one local workspace.")
+                        .font(.callout)
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
                 }
             }
-            content = content.replacingOccurrences(
-                of: "(appcode://openfolder)",
-                with:
-                    "(appcode://openfolder)\n\n#### \(NSLocalizedString("Recent", comment: ""))"
-                    + recentFolders)
-        }
 
-        md.load(markdown: content, backgroundColor: UIColor(Color.init(id: "editor.background")))
+            HStack(spacing: 10) {
+                statusPill("iOS 26", systemImage: "iphone")
+                statusPill("Local-first", systemImage: "externaldrive")
+                statusPill("SSH ready", systemImage: "network")
+            }
+        }
     }
 
-    func makeUIView(context: Context) -> MarkdownView {
-        let md = MarkdownView()
-        md.changeBackgroundColor(color: UIColor(Color.init(id: "editor.background")))
-        md.onTouchLink = { request in
-            guard let url = request.url else { return false }
-
-            if url.scheme == "file" {
-                return false
-            } else if url.scheme == "https" || url.scheme == "mailto" || url.scheme == "appcode" {
-                switch url.absoluteString {
-                case "appcode://newfile":
-                    onCreateNewFile()
-                case "appcode://openfolder":
-                    onSelectFolder()
-                case "appcode://openfile":
-                    onSelectFile()
-                case "appcode://clone":
-                    onNavigateToCloneSection()
-                case let i where i.hasPrefix("appcode://previousFolder/"):
-                    let key = Int(
-                        i.replacingOccurrences(
-                            of: "appcode://previousFolder/", with: ""))!
-                    if let datas = UserDefaults.standard.value(forKey: "recentFolder") as? [Data] {
-                        var isStale = false
-                        if let newURL = try? URL(
-                            resolvingBookmarkData: datas[key], bookmarkDataIsStale: &isStale)
-                        {
-                            onSelectFolderAsWorkspaceStorage(newURL)
-                        }
-                    }
-                default:
-                    UIApplication.shared.open(url)
+    private var actionGrid: some View {
+        LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 12) {
+            ForEach(actions) { action in
+                Button(action: action.action) {
+                    WelcomeActionCard(action: action)
                 }
-                return false
+                .buttonStyle(.plain)
+                .accessibilityLabel(action.title)
+                .accessibilityHint(action.subtitle)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var recentSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Recent Workspaces", systemImage: "clock.arrow.circlepath")
+                    .font(.headline)
+                    .foregroundColor(Color("T1"))
+                Spacer()
+            }
+
+            if recentFolders.isEmpty {
+                HStack(spacing: 12) {
+                    Image(systemName: "folder")
+                        .font(.title3)
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                    Text("Open a folder to pin it here for faster starts.")
+                        .font(.callout)
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                    Spacer()
+                }
+                .padding(16)
+                .background(Color(id: "sideBar.background").opacity(0.62), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .appCodeGlassPanel(cornerRadius: 16, interactive: false)
             } else {
-                return false
+                VStack(spacing: 8) {
+                    ForEach(recentFolders.prefix(5)) { folder in
+                        Button {
+                            onSelectFolderAsWorkspaceStorage(folder.url)
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "folder.fill")
+                                    .foregroundColor(Color(id: "activityBar.foreground"))
+                                    .frame(width: 28)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(folder.name)
+                                        .font(.body.weight(.semibold))
+                                        .foregroundColor(Color("T1"))
+                                        .lineLimit(1)
+                                    Text(folder.path)
+                                        .font(.caption)
+                                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                                        .lineLimit(1)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundColor(Color(id: "tab.inactiveForeground"))
+                            }
+                            .padding(14)
+                            .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .appCodeGlassPanel(cornerRadius: 18, interactive: false)
             }
         }
-        loadMd(md: md)
-        md.isOpaque = true
-        return md
     }
 
+    private func statusPill(_ title: LocalizedStringKey, systemImage: String) -> some View {
+        Label(title, systemImage: systemImage)
+            .font(.caption.weight(.semibold))
+            .foregroundColor(Color("T1"))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(Color(id: "sideBar.background").opacity(0.58), in: Capsule())
+            .appCodeGlassPanel(cornerRadius: 18)
+    }
+}
+
+private struct WelcomeActionCard: View {
+    let action: WelcomeAction
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Image(systemName: action.systemImage)
+                .font(.system(size: 24, weight: .semibold))
+                .foregroundColor(action.isPrimary ? Color.white : Color(id: "activityBar.foreground"))
+                .frame(width: 44, height: 44)
+                .background(action.isPrimary ? Color.accentColor : Color(id: "button.background").opacity(0.36), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(action.title)
+                    .font(.headline)
+                    .foregroundColor(Color("T1"))
+                    .lineLimit(1)
+                Text(action.subtitle)
+                    .font(.caption)
+                    .foregroundColor(Color(id: "tab.inactiveForeground"))
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, minHeight: 142, alignment: .topLeading)
+        .padding(16)
+        .background(Color(id: "sideBar.background").opacity(action.isPrimary ? 0.72 : 0.54), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .appCodeGlassPanel(cornerRadius: 18, interactive: true)
+    }
 }
