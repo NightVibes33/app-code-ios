@@ -39,4 +39,4 @@ Default bundle IDs are `com.nightvibes.appcode` and `com.nightvibes.appcode.exte
 
 ## License
 
-This fork keeps the upstream MIT license. See `LICENSE`. Privacy policy: `PRIVACY.md`.
+This fork keeps the upstream MIT license. See `LICENSE`. Privacy policy: https://nightvibes33.github.io/app-code-ios/privacy.html
