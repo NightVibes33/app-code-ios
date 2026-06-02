@@ -36,6 +36,10 @@ struct SettingsView: View {
     let renderWhitespaceOptions = ["None", "Boundary", "Selection", "Trailing", "All"]
     let wordWrapOptions = ["off", "on", "wordWrapColumn", "bounded"]
 
+    private var selectedColorSchemeLabel: String {
+        colorSchemes.indices.contains(preferredColorScheme) ? colorSchemes[preferredColorScheme] : colorSchemes[0]
+    }
+
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
@@ -43,6 +47,16 @@ struct SettingsView: View {
         NavigationView {
             Form {
                 // TODO: Rework Editor / Terminal settings to support multiple scenes
+
+                SettingsOverviewCard(
+                    colorScheme: selectedColorSchemeLabel,
+                    editorFontSize: editorOptions.value.fontSize,
+                    terminalFontSize: terminalOptions.value.fontSize,
+                    languageServiceEnabled: languageServiceEnabled,
+                    restorationEnabled: stateRestorationEnabled
+                )
+                .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
+                .listRowBackground(Color.clear)
 
                 Group {
                     Section(header: Text(NSLocalizedString("General", comment: ""))) {
@@ -356,6 +370,72 @@ struct SettingsView: View {
             .configureToolbarBackground()
             .preferredColorScheme(themeManager.colorSchemePreference)
         }
+    }
+}
+
+private struct SettingsOverviewCard: View {
+    let colorScheme: String
+    let editorFontSize: Int
+    let terminalFontSize: Int
+    let languageServiceEnabled: Bool
+    let restorationEnabled: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 13) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundColor(Color(id: "activityBar.foreground"))
+                    .frame(width: 46, height: 46)
+                    .background(Color(id: "button.background").opacity(0.34), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("App Code Settings")
+                        .font(.headline)
+                        .foregroundColor(Color("T1"))
+                    Text("Tune the editor, terminal, Git, and workspace startup in one place.")
+                        .font(.caption)
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 0)
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 128), spacing: 8)], alignment: .leading, spacing: 8) {
+                SettingsStatusPill(title: colorScheme, systemImage: "circle.lefthalf.filled")
+                SettingsStatusPill(title: "Editor \(editorFontSize)pt", systemImage: "textformat.size")
+                SettingsStatusPill(title: "Terminal \(terminalFontSize)pt", systemImage: "terminal")
+                SettingsStatusPill(
+                    title: languageServiceEnabled ? "Language Service On" : "Language Service Off",
+                    systemImage: languageServiceEnabled ? "checkmark.seal" : "xmark.seal"
+                )
+                SettingsStatusPill(
+                    title: restorationEnabled ? "Restores Tabs" : "No Tab Restore",
+                    systemImage: restorationEnabled ? "arrow.clockwise" : "rectangle.slash"
+                )
+            }
+        }
+        .padding(16)
+        .background(Color(id: "sideBar.background").opacity(0.62), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .appCodeGlassPanel(cornerRadius: 18, interactive: false)
+    }
+}
+
+private struct SettingsStatusPill: View {
+    let title: String
+    let systemImage: String
+
+    var body: some View {
+        Label(title, systemImage: systemImage)
+            .font(.caption.weight(.semibold))
+            .foregroundColor(Color("T1"))
+            .lineLimit(1)
+            .minimumScaleFactor(0.78)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(id: "button.background").opacity(0.30), in: Capsule())
     }
 }
 
