@@ -51,6 +51,13 @@ for xcframework in $XCFRAMEWORKS; do
     exit 1
   fi
 
+  for framework in $FRAMEWORKS; do
+    echo "Signing framework slice: $framework"
+    codesign --force --timestamp --sign "$SIGNING_IDENTITY" "$framework"
+    codesign --verify --verbose=2 "$framework"
+  done
+
+  echo "Signing XCFramework wrapper: $xcframework"
   codesign --force --timestamp --sign "$SIGNING_IDENTITY" "$xcframework"
   codesign --verify --verbose=2 "$xcframework"
 done
