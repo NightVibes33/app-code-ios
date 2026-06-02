@@ -112,6 +112,7 @@ platform :ios do
 Generated Changelog:
 " + changelog,
       groups: (DISTRIBUTE_EXTERNAL ? ["Public"] : []),
+      skip_waiting_for_build_processing: true,
       wait_processing_interval: 300,
       api_key: api_key
     )
