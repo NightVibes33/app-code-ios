@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct NotificationCentreView: View {
 
@@ -68,20 +69,29 @@ private struct SimpleNotificationItem: View {
     @Binding var isPresented: Bool
     @Binding var isRemoved: Bool
 
+    private func copyMessage() {
+        UIPasteboard.general.string = data.title
+    }
+
     var body: some View {
-        NotificationItem(data: data)
-            .onTapGesture {
+        NotificationItem(data: data) {
+            HStack {
+                Spacer()
+                if data.level == .error {
+                    NotificationActionButton(title: "Copy", systemImage: "doc.on.doc", action: copyMessage)
+                }
+                NotificationActionButton(title: "Dismiss", systemImage: "xmark") {
+                    withAnimation { isRemoved = true }
+                }
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
                 withAnimation {
-                    isRemoved = true
+                    isPresented = false
                 }
             }
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
-                    withAnimation {
-                        isPresented = false
-                    }
-                }
-            }
+        }
     }
 }
 
@@ -150,7 +160,7 @@ private struct NotificationItemWithButton: View {
 
     var body: some View {
         NotificationItem(data: data) {
-            HStack {
+            VStack(alignment: .leading, spacing: 8) {
                 if data.secondaryAction == nil {
                     Text(
                         String(
@@ -161,42 +171,48 @@ private struct NotificationItemWithButton: View {
                     .font(.system(size: 12))
                     .foregroundColor(Color.gray)
                 }
-                Spacer()
-                Group {
+
+                HStack {
+                    Spacer()
                     if data.primaryAction != nil {
-                        Text(data.primaryTitle)
-                            .onTapGesture {
-                                data.primaryAction?()
-                                withAnimation {
-                                    isRemoved = true
-                                }
-                            }
+                        NotificationActionButton(title: LocalizedStringKey(data.primaryTitle), systemImage: "arrow.right.circle") {
+                            data.primaryAction?()
+                            withAnimation { isRemoved = true }
+                        }
                     }
                     if data.secondaryAction != nil {
-                        Text(data.secondaryTitle)
-                            .onTapGesture {
-                                data.secondaryAction?()
-                                withAnimation {
-                                    isRemoved = true
-                                }
-                            }
-                    }
-                    Text("common.cancel")
-                        .onTapGesture {
-                            withAnimation {
-                                isRemoved = true
-                            }
+                        NotificationActionButton(title: LocalizedStringKey(data.secondaryTitle), systemImage: "arrow.triangle.2.circlepath") {
+                            data.secondaryAction?()
+                            withAnimation { isRemoved = true }
                         }
-                }.foregroundColor(.white)
-                    .lineLimit(1)
-                    .font(.system(size: 12))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.init(id: "statusBar.background"))
-                    .cornerRadius(10)
-
+                    }
+                    NotificationActionButton(title: "common.cancel", systemImage: "xmark") {
+                        withAnimation { isRemoved = true }
+                    }
+                }
             }
         }
+    }
+}
+
+
+private struct NotificationActionButton: View {
+    let title: LocalizedStringKey
+    let systemImage: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .labelStyle(.titleAndIcon)
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .font(.system(size: 12, weight: .semibold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Color.init(id: "statusBar.background"), in: Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 

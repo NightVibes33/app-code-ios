@@ -24,7 +24,7 @@ struct SourceControlTemplateSection: View {
                     GitHubSearchResultCell(item: item, onClone: onClone, onTap: onTap)
                 }.listRowBackground(Color.init(id: "sideBar.background"))
             } else {
-                ProgressView()
+                AppCodeSkeletonRows(count: 3)
             }
 
             DescriptionText(

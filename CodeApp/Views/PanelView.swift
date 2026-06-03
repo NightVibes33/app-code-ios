@@ -8,7 +8,7 @@
 import SwiftUI
 import ios_system
 
-private let PANEL_MINIMUM_HEIGHT: CGFloat = 40
+private let PANEL_MINIMUM_HEIGHT: CGFloat = 72
 private let TOP_BAR_HEIGHT: CGFloat = 40
 private let EDITOR_MINIMUM_HEIGHT: CGFloat = 8
 private let BOTTOM_BAR_HEIGHT: CGFloat = 20
@@ -20,13 +20,13 @@ struct PanelToolbarButton: View {
     var body: some View {
         Button(action: onTapGesture) {
             Image(systemName: systemName)
-                .font(.system(size: 12, weight: .light))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(Color.init(id: "panelTitle.activeForeground"))
-                .padding(3)
-                .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .frame(width: 28, height: 28)
+                .background(Color(id: "button.background").opacity(0.28), in: Circle())
+                .contentShape(Circle())
                 .hoverEffect(.highlight)
-                .frame(minWidth: 0, maxWidth: 8, minHeight: 0, maxHeight: 8)
-                .padding(.horizontal)
+                .padding(.horizontal, 4)
         }
     }
 }
@@ -36,18 +36,22 @@ private struct PanelTabLabel: View {
     @SceneStorage("panel.focusedId") var currentPanelId: String = DefaultUIState.PANEL_FOCUSED_ID
 
     var body: some View {
-        Text(LocalizedStringKey(panel.labelId))
-            .textCase(.uppercase)
-            .foregroundColor(
-                Color.init(
-                    id: panel.labelId == currentPanelId
-                        ? "panelTitle.activeForeground" : "panelTitle.inactiveForeground")
-            )
-            .font(.system(size: 12, weight: .light))
-            .padding(.leading)
-            .onTapGesture {
-                currentPanelId = panel.labelId
-            }
+        Button {
+            currentPanelId = panel.labelId
+        } label: {
+            Text(LocalizedStringKey(panel.labelId))
+                .textCase(.uppercase)
+                .foregroundColor(
+                    Color.init(
+                        id: panel.labelId == currentPanelId
+                            ? "panelTitle.activeForeground" : "panelTitle.inactiveForeground")
+                )
+                .font(.system(size: 12, weight: panel.labelId == currentPanelId ? .semibold : .regular))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color(id: "button.background").opacity(panel.labelId == currentPanelId ? 0.26 : 0), in: Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -101,7 +105,10 @@ private struct Implementation: View {
                     .padding(.horizontal)
                     .environmentObject(panelManager)
 
-            }.frame(height: 14).padding(.vertical, 5)
+            }
+            .frame(height: 32)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
 
             HStack {
                 if let currentPanel = currentPanel {
@@ -113,7 +120,8 @@ private struct Implementation: View {
             }.frame(maxHeight: .infinity)
         }
         .foregroundColor(Color(id: "panelTitle.activeForeground"))
-        .font(.system(size: 12, weight: .light))
+        .font(.system(size: 12, weight: .regular))
+        .background(Color.init(id: "editor.background").opacity(0.96))
     }
 
 }

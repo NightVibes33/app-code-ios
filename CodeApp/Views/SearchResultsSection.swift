@@ -24,66 +24,96 @@ struct SearchResultsSection: View {
             header:
                 HStack {
                     Text("Results")
-                    Text(" " + App.textSearchManager.message)
+                    if !App.textSearchManager.message.isEmpty {
+                        Text(" " + App.textSearchManager.message)
+                    }
                 }.foregroundColor(Color(id: "sideBarSectionHeader.foreground"))
         ) {
+            if App.textSearchManager.results.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    Image(systemName: App.textSearchManager.searchTerm.isEmpty ? "magnifyingglass" : "doc.text.magnifyingglass")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(Color(id: "activityBar.foreground"))
+                    Text(App.textSearchManager.searchTerm.isEmpty ? "Search this workspace" : "No matches found")
+                        .font(.headline)
+                        .foregroundColor(Color("T1"))
+                    Text(App.textSearchManager.searchTerm.isEmpty ? "Type a term above to scan files outside node_modules and .git." : "Try a shorter term or check the current workspace folder.")
+                        .font(.caption)
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(14)
+                .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .appCodeGlassPanel(cornerRadius: 18, interactive: false)
+            }
+
             if let mainFolderUrl = URL(string: App.workSpaceStorage.currentDirectory.url) {
-                ForEach(Array(App.textSearchManager.results.keys.sorted()), id: \.self) {
-                    key in
+                ForEach(Array(App.textSearchManager.results.keys.sorted()), id: \.self) { key in
                     let fileURL = URL(fileURLWithPath: key)
 
                     if let result = App.textSearchManager.results[key] {
                         DisclosureGroup(
                             isExpanded: binding(for: key),
                             content: {
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: 8) {
                                     ForEach(result) { res in
-                                        HighlightedText(
-                                            res.line.trimmingCharacters(
-                                                in: .whitespacesAndNewlines),
-                                            matching: App.textSearchManager.searchTerm,
-                                            accentColor: Color.init(
-                                                id: "list.highlightForeground")
-                                        )
-                                        .foregroundColor(Color.init("T1"))
-                                        .font(.custom("Menlo Regular", size: 14))
-                                        .lineLimit(1)
-                                        .onTapGesture {
+                                        Button {
                                             onTapSearchResult(res, fileURL)
+                                        } label: {
+                                            HStack(alignment: .top, spacing: 8) {
+                                                Text("\(res.line_num)")
+                                                    .font(.caption.monospacedDigit())
+                                                    .foregroundColor(Color(id: "tab.inactiveForeground"))
+                                                    .frame(width: 36, alignment: .trailing)
+                                                HighlightedText(
+                                                    res.line.trimmingCharacters(in: .whitespacesAndNewlines),
+                                                    matching: App.textSearchManager.searchTerm,
+                                                    accentColor: Color.init(id: "list.highlightForeground")
+                                                )
+                                                .foregroundColor(Color.init("T1"))
+                                                .font(.custom("Menlo Regular", size: 13))
+                                                .lineLimit(2)
+                                                Spacer(minLength: 0)
+                                            }
+                                            .padding(8)
+                                            .background(Color(id: "button.background").opacity(0.18), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                                .padding(.top, 8)
+                            },
+                            label: {
+                                HStack(spacing: 10) {
+                                    FileIcon(url: key, iconSize: 14)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        HStack(spacing: 6) {
+                                            Text(fileURL.lastPathComponent)
+                                                .font(.subheadline.weight(.semibold))
+                                                .foregroundColor(Color.init("T1"))
+                                                .lineLimit(1)
+                                            Text("\(result.count)")
+                                                .font(.caption.weight(.bold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 7)
+                                                .padding(.vertical, 3)
+                                                .background(Color(id: "button.background"), in: Capsule())
+                                        }
+                                        if let path = fileURL.deletingLastPathComponent().relativePath(from: mainFolderUrl), !path.isEmpty {
+                                            Text(path)
+                                                .foregroundColor(Color(id: "tab.inactiveForeground"))
+                                                .font(.caption2)
+                                                .lineLimit(1)
                                         }
                                     }
                                 }
-                            },
-                            label: {
-                                VStack(alignment: .leading) {
-                                    HStack {
-                                        FileIcon(url: key, iconSize: 10)
-                                        Text(fileURL.lastPathComponent + " ")
-                                            .font(.subheadline)
-                                            .foregroundColor(Color.init("T1"))
-                                        Circle()
-                                            .fill(Color.init("panel.border"))
-                                            .frame(width: 14, height: 14)
-                                            .overlay(
-                                                Text("\(result.count)").foregroundColor(
-                                                    Color.init("T1")
-                                                ).font(.system(size: 10))
-                                            )
-                                    }
-                                    if let path = fileURL.deletingLastPathComponent()
-                                        .relativePath(from: mainFolderUrl),
-                                        !path.isEmpty
-                                    {
-                                        Text(path)
-                                            .foregroundColor(.gray)
-                                            .font(.system(size: 10, weight: .light))
-                                    }
-
-                                }
+                                .padding(10)
+                                .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                             })
                     }
                 }
             }
         }
     }
+
 }

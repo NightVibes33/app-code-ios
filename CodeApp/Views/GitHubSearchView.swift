@@ -15,27 +15,35 @@ struct GitHubSearchView: View {
     let onTap: (String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 9) {
-            Label("Search GitHub", systemImage: "magnifyingglass")
-                .font(.caption.weight(.semibold))
-                .foregroundColor(Color(id: "tab.inactiveForeground"))
+        Group {
+            VStack(alignment: .leading, spacing: 9) {
+                Label("Search GitHub", systemImage: "magnifyingglass")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(Color(id: "tab.inactiveForeground"))
 
-            SearchBar(
-                text: $App.searchManager.searchTerm,
-                searchAction: { App.searchManager.search() }, placeholder: "GitHub",
-                cornerRadius: 13)
-        }
-        .padding(.top, 4)
+                SearchBar(
+                    text: $App.searchManager.searchTerm,
+                    searchAction: { App.searchManager.search() }, placeholder: "GitHub",
+                    cornerRadius: 13)
+            }
+            .padding(.top, 4)
 
-        if !App.searchManager.searchTerm.isEmpty && App.searchManager.searchResultItems.isEmpty {
-            DescriptionText("Press return to search repositories.")
-                .padding(.vertical, 4)
-        }
+            if App.searchManager.isSearching {
+                AppCodeSkeletonRows(count: 3)
+                    .padding(.vertical, 4)
+            } else if !App.searchManager.searchTerm.isEmpty && App.searchManager.searchResultItems.isEmpty {
+                DescriptionText("Press return to search repositories.")
+                    .padding(.vertical, 4)
+            }
 
-        ForEach(App.searchManager.searchResultItems, id: \.html_url) { item in
-            GitHubSearchResultCell(item: item, onClone: onClone, onTap: onTap)
+            ForEach(App.searchManager.searchResultItems, id: \.html_url) { item in
+                GitHubSearchResultCell(item: item, onClone: onClone, onTap: onTap)
+            }
+            .listRowBackground(Color.init(id: "sideBar.background"))
         }
-        .listRowBackground(Color.init(id: "sideBar.background"))
+        .onChange(of: App.searchManager.searchTerm) { _ in
+            App.searchManager.searchDebounced()
+        }
     }
 }
 
@@ -126,6 +134,7 @@ struct GitHubSearchResultCell: View {
 }
 
 private struct CloneButton: View {
+    @EnvironmentObject var App: MainApp
 
     let item: GitHubSearchManager.item
     let onClone: (String) async throws -> Void
@@ -133,7 +142,13 @@ private struct CloneButton: View {
     var body: some View {
         Button {
             Task {
-                try await onClone(item.clone_url)
+                do {
+                    try await onClone(item.clone_url)
+                } catch {
+                    await MainActor.run {
+                        App.notificationManager.showErrorMessage(error.localizedDescription)
+                    }
+                }
             }
         } label: {
             Label("source_control.clone", systemImage: "arrow.down")

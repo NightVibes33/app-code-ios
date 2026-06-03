@@ -8,8 +8,8 @@
 import SwiftUI
 
 private enum TerminalTabBarConstants {
-    static let tabBarWidth: CGFloat = 50
-    static let rowHeight: CGFloat = 36
+    static let tabBarWidth: CGFloat = 92
+    static let rowHeight: CGFloat = 42
     static let iconSize: CGFloat = 14
     static let activeIndicatorWidth: CGFloat = 2
 }
@@ -18,8 +18,21 @@ struct TerminalTabBar: View {
     @EnvironmentObject var App: MainApp
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Terminal list
+        VStack(spacing: 8) {
+            Button {
+                App.terminalManager.createTerminal()
+            } label: {
+                Label("New", systemImage: "plus")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(Color("T1"))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(Color(id: "button.background").opacity(0.30), in: Capsule())
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 8)
+            .disabled(App.terminalManager.terminals.count >= TerminalManager.maxTerminals)
+
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(spacing: 0) {
                     ForEach(App.terminalManager.terminals) { terminal in
@@ -39,6 +52,7 @@ struct TerminalTabBar: View {
             }
         }
         .frame(width: TerminalTabBarConstants.tabBarWidth)
+        .padding(.horizontal, 6)
         .background(Color(id: "sideBar.background"))
     }
 }
@@ -78,16 +92,20 @@ struct TerminalTabRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 0) {
-            Spacer()
-            // Icon
-            Image(systemName: "terminal")
-                .font(.system(size: TerminalTabBarConstants.iconSize))
+        HStack(spacing: 7) {
+            Image(systemName: isTerminalBusy ? "terminal.fill" : "terminal")
+                .font(.system(size: TerminalTabBarConstants.iconSize, weight: .semibold))
                 .foregroundColor(Color(id: "foreground"))
                 .frame(width: 20, height: 20)
-            Spacer()
+            Text(terminal.name)
+                .font(.caption2.weight(isActive ? .semibold : .regular))
+                .foregroundColor(Color(id: "foreground"))
+                .lineLimit(1)
+            Spacer(minLength: 0)
         }
+        .padding(.horizontal, 8)
         .frame(height: TerminalTabBarConstants.rowHeight)
+        .background(Color(id: "button.background").opacity(isActive ? 0.26 : 0), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             // Left border indicator for active tab (VS Code style)
             HStack {

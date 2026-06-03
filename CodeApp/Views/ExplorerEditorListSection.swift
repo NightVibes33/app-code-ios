@@ -21,28 +21,43 @@ struct ExplorerEditorListSection: View {
                 .foregroundColor(Color(id: "sideBarSectionHeader.foreground"))
         ) {
             if App.editors.isEmpty {
-                SideBarButton("New File") {
-                    onOpenNewFile()
-                }
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: "folder.badge.gearshape")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(Color(id: "activityBar.foreground"))
+                            .frame(width: 38, height: 38)
+                            .background(Color(id: "button.background").opacity(0.34), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Start a Workspace")
+                                .font(.headline)
+                                .foregroundColor(Color("T1"))
+                            Text("Create a file, add a folder, or switch projects.")
+                                .font(.caption)
+                                .foregroundColor(Color(id: "tab.inactiveForeground"))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
 
-                SideBarButton("New Folder") {
-                    Task {
+                    SidebarActionButton(title: "New File", systemImage: "doc.badge.plus", isPrimary: true) {
+                        onOpenNewFile()
+                    }
+
+                    SidebarActionButton(title: "New Folder", systemImage: "folder.badge.plus") {
                         Task {
-                            guard let url = App.workSpaceStorage.currentDirectory._url else {
-                                return
-                            }
+                            guard let url = App.workSpaceStorage.currentDirectory._url else { return }
                             try await App.createFolder(at: url)
                         }
                     }
-                }
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
 
-                SideBarButton("common.open_folder") {
-                    onPickNewDirectory()
+                    SidebarActionButton(title: "common.open_folder", systemImage: "folder") {
+                        onPickNewDirectory()
+                    }
                 }
+                .padding(14)
+                .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .appCodeGlassPanel(cornerRadius: 18, interactive: false)
+                .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 8, trailing: 8))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }

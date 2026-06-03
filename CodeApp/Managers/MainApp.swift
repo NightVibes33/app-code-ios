@@ -131,6 +131,7 @@ class MainStateManager: ObservableObject {
     @Published var showsFilePicker = false
     @Published var showsChangeLog: Bool = false
     @Published var showsSettingsSheet: Bool = false
+    @Published var showsCommandPalette: Bool = false
     @Published var showsCheckoutAlert: Bool = false
     @Published var availableCheckoutDestination: [CheckoutDestination] = []
     @Published var gitServiceIsBusy = false

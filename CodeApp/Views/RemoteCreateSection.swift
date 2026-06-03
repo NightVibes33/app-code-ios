@@ -122,6 +122,8 @@ struct RemoteCreateSection: View {
                 Text("New remote")
                 .foregroundColor(Color(id: "sideBarSectionHeader.foreground"))
         ) {
+            RemoteSetupHeader(serverType: serverType, usesPrivateKey: usesPrivateKey, savesCredentials: saveCredentials)
+
             Group {
                 HStack {
                     Image(systemName: "rectangle.connected.to.line.below")
@@ -288,7 +290,7 @@ struct RemoteCreateSection: View {
                 )
             }
 
-            SideBarButton("Connect") {
+            SidebarActionButton(title: "Connect", systemImage: "bolt.horizontal.circle.fill", isPrimary: true) {
                 if usesPrivateKey && privateKeyContent.isEmpty {
                     focusedField = .privateKeyContent
                 } else {
@@ -312,5 +314,57 @@ struct RemoteCreateSection: View {
         .onAppear {
             jumpServerUrl = hostsSuitableForJumphost.first?.url
         }
+    }
+}
+
+private struct RemoteSetupHeader: View {
+    let serverType: RemoteType
+    let usesPrivateKey: Bool
+    let savesCredentials: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "rectangle.connected.to.line.below")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(Color(id: "activityBar.foreground"))
+                    .frame(width: 40, height: 40)
+                    .background(Color(id: "button.background").opacity(0.34), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Remote Setup")
+                        .font(.headline)
+                        .foregroundColor(Color("T1"))
+                    Text("Add the host, choose authentication, then connect and save it for later.")
+                        .font(.caption)
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 84), spacing: 7)], alignment: .leading, spacing: 7) {
+                RemoteSetupPill(title: serverType == .sftp ? "SSH" : serverType.rawValue.uppercased(), systemImage: "network")
+                RemoteSetupPill(title: usesPrivateKey ? "Key Auth" : "Password", systemImage: usesPrivateKey ? "key" : "lock")
+                RemoteSetupPill(title: savesCredentials ? "Saved" : "Session", systemImage: savesCredentials ? "checkmark.seal" : "clock")
+            }
+        }
+        .padding(14)
+        .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .appCodeGlassPanel(cornerRadius: 18, interactive: false)
+    }
+}
+
+private struct RemoteSetupPill: View {
+    let title: String
+    let systemImage: String
+
+    var body: some View {
+        Label(title, systemImage: systemImage)
+            .font(.caption.weight(.semibold))
+            .foregroundColor(Color("T1"))
+            .lineLimit(1)
+            .minimumScaleFactor(0.78)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 6)
+            .background(Color(id: "button.background").opacity(0.30), in: Capsule())
     }
 }

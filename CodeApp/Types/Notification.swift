@@ -34,7 +34,7 @@ struct NotificationData {
         case infinityProgress
     }
 
-    enum Level {
+    enum Level: Equatable {
         case warning
         case info
         case error

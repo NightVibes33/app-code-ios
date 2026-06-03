@@ -67,6 +67,21 @@ struct TopBar: View {
                 }
             }
 
+            Button(action: {
+                stateManager.showsCommandPalette.toggle()
+            }) {
+                Image(systemName: "command")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(Color.init("T1"))
+                    .padding(5)
+                    .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .hoverEffect(.highlight)
+                    .frame(minWidth: 0, maxWidth: 20, minHeight: 0, maxHeight: 20)
+                    .padding()
+            }
+            .keyboardShortcut("p", modifiers: [.command])
+            .accessibilityLabel("Command Center")
+
             if App.activeTextEditor != nil && !App.runeStoneEditorEnabled {
                 Image(systemName: "doc.text.magnifyingglass").font(.system(size: 17))
                     .foregroundColor(Color.init("T1")).padding(5)
@@ -144,6 +159,12 @@ struct TopBar: View {
                         }) {
                             Label("actions.new_window", systemImage: "square.split.2x1")
                         }
+                    }
+
+                    Button(action: {
+                        stateManager.showsCommandPalette.toggle()
+                    }) {
+                        Label("Command Center", systemImage: "command")
                     }
 
                     Button(action: {
