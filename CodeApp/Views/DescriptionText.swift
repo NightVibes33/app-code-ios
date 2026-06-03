@@ -15,6 +15,10 @@ struct DescriptionText: View {
         self.text = text
     }
 
+    init(verbatim text: String) {
+        self.text = LocalizedStringKey(text)
+    }
+
     var body: some View {
         Text(text)
             .foregroundColor(.gray)

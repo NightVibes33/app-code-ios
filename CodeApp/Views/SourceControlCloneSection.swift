@@ -175,7 +175,7 @@ struct SourceControlCloneSection: View {
                     .disabled(gitURL.isEmpty && destinationName.isEmpty)
                 }
 
-                DescriptionText(destinationPreview)
+                DescriptionText(verbatim: destinationPreview)
                 DescriptionText("Example: https://github.com/NightVibes33/app-code-ios.git")
             }
             .padding(14)

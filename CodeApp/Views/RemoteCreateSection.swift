@@ -196,7 +196,11 @@ struct RemoteCreateSection: View {
                     RemoteQuickButton(title: "Check", systemImage: "checkmark.seal", action: validateFields)
                     RemoteQuickButton(title: "Clear", systemImage: "xmark.circle", action: resetAllFields)
                 }
-                Label(connectionPreview, systemImage: "terminal")
+                Label {
+                    Text(connectionPreview)
+                } icon: {
+                    Image(systemName: "terminal")
+                }
                     .font(.caption.weight(.semibold))
                     .foregroundColor(Color(id: "tab.inactiveForeground"))
                     .lineLimit(1)
