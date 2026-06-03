@@ -71,10 +71,13 @@ platform :ios do
       in_house: false
     )
 
-    next_build = latest_testflight_build_number(
+    latest_build = latest_testflight_build_number(
       app_identifier: DEVELOPER_APP_IDENTIFIER,
       api_key: api_key
-    ) + 1
+    )
+    requested_build = ENV.fetch("TESTFLIGHT_BUILD_NUMBER", "").strip
+    next_build = requested_build.empty? ? latest_build + 1 : requested_build.to_i
+    UI.user_error!("TESTFLIGHT_BUILD_NUMBER must be greater than #{latest_build}") if next_build <= latest_build
 
     increment_build_number(
       xcodeproj: "Code.xcodeproj",

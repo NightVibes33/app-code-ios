@@ -7,6 +7,10 @@ on:
         description: Upload to external TestFlight group named Public
         required: false
         default: "false"
+      build_number:
+        description: Optional CFBundleVersion override for retrying uploads
+        required: false
+        default: ""
 
 concurrency:
   group: testflight-${{ github.ref }}
@@ -82,4 +86,5 @@ jobs:
           APPLE_ISSUER_ID: "${{ secrets.APPLE_ISSUER_ID }}"
           APPLE_KEY_CONTENT: "${{ secrets.APPLE_KEY_CONTENT }}"
           DISTRIBUTE_EXTERNAL: "${{ github.event.inputs.distribute_external }}"
+          TESTFLIGHT_BUILD_NUMBER: "${{ github.event.inputs.build_number }}"
           XCODE_PATH: "/Applications/Xcode_26.5.app"
