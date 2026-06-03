@@ -23,51 +23,36 @@ struct ActivityBarIconView: View {
         .ACTIVITYBAR_SELECTED_ITEM
     @SceneStorage("sidebar.visible") var isSideBarVisible: Bool = DefaultUIState.SIDEBAR_VISIBLE
 
-    private var isSelected: Bool {
-        activeItemId == activityBarItem.itemID && isSideBarVisible
-    }
-
     var body: some View {
-        ZStack(alignment: .leading) {
-            if isSelected {
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                    .fill(Color.init(id: "activityBar.foreground"))
-                    .frame(width: 3, height: 28)
-                    .padding(.leading, 2)
-            }
-
+        ZStack {
             Button(action: {
-                if isSelected {
-                    withAnimation(.easeInOut(duration: 0.18)) {
+                if isSideBarVisible && activeItemId == activityBarItem.itemID {
+                    withAnimation(.easeIn(duration: 0.2)) {
                         isSideBarVisible = false
                     }
                 } else {
                     activeItemId = activityBarItem.itemID
-                    withAnimation(.easeInOut(duration: 0.18)) {
+                    withAnimation(.easeIn(duration: 0.2)) {
                         isSideBarVisible = true
                     }
                 }
             }) {
-                Image(systemName: activityBarItem.iconSystemName)
-                    .font(.system(size: 20, weight: isSelected ? .semibold : .light))
-                    .foregroundColor(
-                        Color.init(
-                            id: isSelected
-                                ? "activityBar.foreground"
-                                : "activityBar.inactiveForeground")
-                    )
-                    .frame(width: 38, height: 38)
-                    .background(
-                        Color.init(id: "button.background").opacity(isSelected ? 0.42 : 0),
-                        in: RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    )
-                    .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .hoverEffect(.highlight)
-                    .frame(maxWidth: .infinity, minHeight: 60.0)
+                ZStack {
+                    Text(activityBarItem.title)
+                        .foregroundColor(.clear)
+                        .font(.system(size: 1))
+
+                    Image(systemName: activityBarItem.iconSystemName)
+                        .font(.system(size: 20, weight: .light))
+                        .foregroundColor(
+                            Color.init(
+                                id: (activeItemId == activityBarItem.itemID && isSideBarVisible)
+                                    ? "activityBar.foreground"
+                                    : "activityBar.inactiveForeground")
+                        )
+                        .padding(5)
+                }.frame(maxWidth: .infinity, minHeight: 60.0)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text(activityBarItem.title))
-            .accessibilityValue(isSelected ? Text("Selected") : Text(""))
             .if(activityBarItem.shortcutKey != nil && activityBarItem.modifiers != nil) { view in
                 view
                     .keyboardShortcut(
@@ -124,6 +109,5 @@ struct ActivityBarIconView: View {
                 }
             }
         }
-        .animation(.easeInOut(duration: 0.18), value: isSelected)
     }
 }
