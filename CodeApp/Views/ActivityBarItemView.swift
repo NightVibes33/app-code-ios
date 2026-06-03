@@ -48,28 +48,22 @@ struct ActivityBarIconView: View {
                     }
                 }
             }) {
-                VStack(spacing: 4) {
-                    Image(systemName: activityBarItem.iconSystemName)
-                        .font(.system(size: 18, weight: isSelected ? .semibold : .regular))
-                    Text(activityBarItem.title)
-                        .font(.system(size: 9, weight: isSelected ? .semibold : .regular))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.72)
-                }
-                .foregroundColor(
-                    Color.init(
-                        id: isSelected
-                            ? "activityBar.foreground"
-                            : "activityBar.inactiveForeground")
-                )
-                .frame(width: 58, height: 50)
-                .background(
-                    Color.init(id: "button.background").opacity(isSelected ? 0.42 : 0),
-                    in: RoundedRectangle(cornerRadius: 12, style: .continuous)
-                )
-                .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .hoverEffect(.highlight)
-                .frame(maxWidth: .infinity, minHeight: 62.0)
+                Image(systemName: activityBarItem.iconSystemName)
+                    .font(.system(size: 20, weight: isSelected ? .semibold : .light))
+                    .foregroundColor(
+                        Color.init(
+                            id: isSelected
+                                ? "activityBar.foreground"
+                                : "activityBar.inactiveForeground")
+                    )
+                    .frame(width: 38, height: 38)
+                    .background(
+                        Color.init(id: "button.background").opacity(isSelected ? 0.42 : 0),
+                        in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    )
+                    .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .hoverEffect(.highlight)
+                    .frame(maxWidth: .infinity, minHeight: 60.0)
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text(activityBarItem.title))

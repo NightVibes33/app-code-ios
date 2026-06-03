@@ -466,7 +466,7 @@ class MainApp: ObservableObject {
             itemID: "SOURCE_CONTROL",
             iconSystemName:
                 "point.topleft.down.curvedto.point.bottomright.up",
-            title: "Git",
+            title: "Source Control",
             shortcutKey: "g",
             modifiers: [.control, .shift],
             view: AnyView(SourceControlContainer()),
@@ -480,9 +480,22 @@ class MainApp: ObservableObject {
             },
             isVisible: { true }
         )
+        let remote = ActivityBarItem(
+            itemID: "REMOTE",
+            iconSystemName: "rectangle.connected.to.line.below",
+            title: "Remotes",
+            shortcutKey: "r",
+            modifiers: [.command, .shift],
+            view: AnyView(RemoteContainer()),
+            contextMenuItems: nil,
+            bubble: { self.workSpaceStorage.remoteConnected ? .text("") : nil },
+            isVisible: { true }
+        )
+
         extensionManager.activityBarManager.registerItem(item: explorer)
         extensionManager.activityBarManager.registerItem(item: search)
         extensionManager.activityBarManager.registerItem(item: sourceControl)
+        extensionManager.activityBarManager.registerItem(item: remote)
 
     }
 
