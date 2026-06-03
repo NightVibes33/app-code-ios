@@ -14,6 +14,7 @@ struct EditorTab: View {
 
     // TODO: Don't use ObservedObject because it leaks memory
     @ObservedObject var currentEditor: EditorInstance
+    @State private var showsCloseConfirmation = false
     var isActive: Bool
     var onOpenEditor: () -> Void
     var onCloseEditor: () -> Void
@@ -71,7 +72,13 @@ struct EditorTab: View {
             .buttonStyle(.plain)
             .keyboardShortcut(EditorTab.keyForInt(int: index + 1), modifiers: .command)
 
-            Button(action: onCloseEditor) {
+            Button {
+                if isUnsaved {
+                    showsCloseConfirmation = true
+                } else {
+                    onCloseEditor()
+                }
+            } label: {
                 Image(systemName: isUnsaved ? "circle.fill" : "xmark")
                     .font(.system(size: isUnsaved ? 7 : 9, weight: .semibold))
                     .foregroundColor(Color.init(id: isActive ? "tab.activeForeground" : "tab.inactiveForeground"))
@@ -81,6 +88,19 @@ struct EditorTab: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(isUnsaved ? "Unsaved file" : "Close editor")
+            .alert("Close Unsaved File?", isPresented: $showsCloseConfirmation) {
+                Button("Save & Close") {
+                    Task {
+                        App.setActiveEditor(editor: currentEditor)
+                        await App.saveCurrentFile()
+                        onCloseEditor()
+                    }
+                }
+                Button("Discard", role: .destructive, action: onCloseEditor)
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Save changes before closing \(currentEditor.title)?")
+            }
         }
         .frame(height: 40)
         .padding(.horizontal, 9)

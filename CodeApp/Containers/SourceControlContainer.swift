@@ -143,15 +143,48 @@ struct SourceControlContainer: View {
     }
 
     func onClone(urlString: String) async throws {
+        try await onClone(urlString: urlString, destinationName: nil)
+    }
+
+    private func normalizedGitURL(from rawValue: String) -> URL? {
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let url = URL(string: trimmed), url.scheme != nil {
+            return url
+        }
+        guard trimmed.contains("@"), let separator = trimmed.firstIndex(of: ":") else {
+            return URL(string: trimmed)
+        }
+        let userHost = trimmed[..<separator]
+        let path = trimmed[trimmed.index(after: separator)...]
+        return URL(string: "ssh://\(userHost)/\(path)")
+    }
+
+    private func inferredRepositoryName(from rawValue: String, fallbackURL: URL) -> String {
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.contains("@"), let separator = trimmed.firstIndex(of: ":") {
+            return String(trimmed[trimmed.index(after: separator)...])
+                .split(separator: "/")
+                .last
+                .map(String.init)?
+                .replacingOccurrences(of: ".git", with: "") ?? fallbackURL.deletingPathExtension().lastPathComponent
+        }
+        return fallbackURL.deletingPathExtension().lastPathComponent
+    }
+
+    func onClone(urlString: String, destinationName: String?) async throws {
         guard let serviceProvider = App.workSpaceStorage.gitServiceProvider else {
             throw SourceControlError.gitServiceProviderUnavailable
         }
-        guard let gitURL = URL(string: urlString) else {
+        guard let gitURL = normalizedGitURL(from: urlString) else {
             App.notificationManager.showErrorMessage("errors.source_control.invalid_url")
             throw SourceControlError.invalidURL
         }
 
-        let repo = gitURL.deletingPathExtension().lastPathComponent
+        let fallbackRepo = inferredRepositoryName(from: urlString, fallbackURL: gitURL)
+        let requestedRepo = destinationName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let repo = (requestedRepo?.isEmpty == false ? requestedRepo! : fallbackRepo)
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
         guard
             let dirURL = URL(
                 string: App.workSpaceStorage.currentDirectory.url)?
@@ -177,6 +210,9 @@ struct SourceControlContainer: View {
                 primary: {
                     App.loadFolder(url: dirURL)
                 }, primaryTitle: "common.open_folder", source: repo)
+            await MainActor.run {
+                App.loadFolder(url: dirURL)
+            }
         } catch {
             progress.cancel()
             let error = error as NSError
@@ -463,7 +499,12 @@ struct SourceControlContainer: View {
                         )
                     } else {
                         SourceControlEmptySection(onInitializeRepository: onInitializeRepository)
-                        SourceControlCloneSection(onClone: onClone, onTapResult: onTapTemplate)
+                        SourceControlCloneSection(
+                            onClone: { url, destinationName in
+                                try await onClone(urlString: url, destinationName: destinationName)
+                            },
+                            onTapResult: onTapTemplate
+                        )
                         if communityTemplatesEnabled {
                             SourceControlTemplateSection(onClone: onClone, onTap: onTapTemplate)
                         }

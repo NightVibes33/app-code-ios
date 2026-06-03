@@ -34,6 +34,21 @@ struct StatusBar: View {
                     item.view
                 }
                 Spacer()
+                Button {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
+                        App.notificationManager.isShowingAllBanners.toggle()
+                    }
+                } label: {
+                    Label("\(App.notificationManager.activeNotificationCount)", systemImage: "tray.full")
+                        .labelStyle(.titleAndIcon)
+                        .font(.system(size: 11, weight: .semibold))
+                        .padding(.horizontal, 8)
+                        .frame(height: 18)
+                        .background(Color(id: "button.background").opacity(App.notificationManager.isShowingAllBanners ? 0.42 : 0.16), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Job Center")
+
                 ForEach(rightMostItems) { item in
                     item.view
                 }

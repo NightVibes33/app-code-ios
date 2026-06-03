@@ -121,6 +121,37 @@ private struct MainSection: View {
         ) {
             SourceControlDashboard(remotes: remotes)
 
+            SourceControlSyncStrip(
+                remotes: remotes,
+                remoteBranches: remoteBranches,
+                onStageAll: {
+                    do {
+                        try onStageAllChanges()
+                    } catch {
+                        App.notificationManager.showErrorMessage(error.localizedDescription)
+                    }
+                },
+                onFetch: { remote in
+                    Task {
+                        do {
+                            try await onFetch(remote)
+                        } catch {
+                            App.notificationManager.showErrorMessage(error.localizedDescription)
+                        }
+                    }
+                },
+                onPull: { branch, remote in
+                    Task {
+                        do {
+                            try await onPull(branch, remote)
+                        } catch {
+                            App.notificationManager.showErrorMessage(error.localizedDescription)
+                        }
+                    }
+                },
+                onPush: onPushButtonTapped
+            )
+
             ZStack(alignment: .leading) {
                 TextEditorWithPlaceholder(
                     placeholder: "source_control.message_command_enter_to_commit",
@@ -297,6 +328,86 @@ private struct MainSection: View {
 }
 
 
+private struct SourceControlSyncStrip: View {
+    @EnvironmentObject var App: MainApp
+
+    let remotes: [Remote]
+    let remoteBranches: [Branch]
+    let onStageAll: () -> Void
+    let onFetch: (Remote) -> Void
+    let onPull: (Branch, Remote) -> Void
+    let onPush: (Remote) -> Void
+
+    private var primaryRemote: Remote? { remotes.first }
+    private var primaryBranch: Branch? { remoteBranches.first }
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 8)], spacing: 8) {
+            syncButton(
+                title: "Stage All",
+                systemImage: "plus.circle",
+                detail: App.workingResources.isEmpty ? "No changes" : "\(App.workingResources.count) files",
+                isEnabled: !App.workingResources.isEmpty,
+                action: onStageAll
+            )
+
+            if let remote = primaryRemote {
+                syncButton(title: "Fetch", systemImage: "arrow.triangle.2.circlepath", detail: remote.name, isEnabled: true) {
+                    onFetch(remote)
+                }
+                syncButton(title: "Push", systemImage: "square.and.arrow.up", detail: remote.name, isEnabled: true) {
+                    onPush(remote)
+                }
+                if let branch = primaryBranch {
+                    syncButton(title: "Pull", systemImage: "square.and.arrow.down", detail: branch.name, isEnabled: true) {
+                        onPull(branch, remote)
+                    }
+                } else {
+                    syncButton(title: "Pull", systemImage: "square.and.arrow.down", detail: "No branch", isEnabled: false, action: {})
+                }
+            } else {
+                syncButton(title: "Fetch", systemImage: "network.slash", detail: "No remote", isEnabled: false, action: {})
+                syncButton(title: "Push", systemImage: "network.slash", detail: "No remote", isEnabled: false, action: {})
+                syncButton(title: "Pull", systemImage: "network.slash", detail: "No remote", isEnabled: false, action: {})
+            }
+        }
+    }
+
+    private func syncButton(
+        title: LocalizedStringKey,
+        systemImage: String,
+        detail: String,
+        isEnabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 14, weight: .semibold))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(title)
+                        .font(.caption.weight(.semibold))
+                        .lineLimit(1)
+                    Text(detail)
+                        .font(.caption2)
+                        .lineLimit(1)
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                }
+                Spacer(minLength: 0)
+            }
+            .foregroundColor(isEnabled ? Color("T1") : Color(id: "tab.inactiveForeground"))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 9)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(id: "button.background").opacity(isEnabled ? 0.30 : 0.14), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .accessibilityHint(isEnabled ? "Runs the selected Git action" : "Unavailable until Source Control has the required repository state")
+    }
+}
+
+
 private struct SourceControlDashboard: View {
     @EnvironmentObject var App: MainApp
     let remotes: [Remote]
@@ -398,7 +509,7 @@ private struct WorkingChangesSection: View {
                     onStage: onStage,
                     onShowChangesInDiffEditor: onShowChangesInDiffEditor
                 )
-                .frame(height: 16)
+                .frame(minHeight: 56)
             }
         }
     }
@@ -431,7 +542,7 @@ private struct StagedChangesSection: View {
                     onStage: onStage,
                     onShowChangesInDiffEditor: onShowChangesInDiffEditor
                 )
-                .frame(height: 16)
+                .frame(minHeight: 56)
             }
         }
     }

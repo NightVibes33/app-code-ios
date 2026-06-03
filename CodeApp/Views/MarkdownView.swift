@@ -8,6 +8,7 @@
 import MarkdownView
 import MessageUI
 import SwiftUI
+import UIKit
 
 struct SimpleMarkDownView: UIViewRepresentable {
 
@@ -68,6 +69,7 @@ private struct WelcomeAction: Identifiable {
 }
 
 struct WelcomeView: View {
+    @EnvironmentObject var App: MainApp
     @SceneStorage("activitybar.selected.item") private var activeItemId: String = DefaultUIState.ACTIVITYBAR_SELECTED_ITEM
     @SceneStorage("sidebar.visible") private var isSideBarVisible: Bool = DefaultUIState.SIDEBAR_VISIBLE
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -152,6 +154,7 @@ struct WelcomeView: View {
             VStack(alignment: .leading, spacing: 24) {
                 header
                 actionGrid
+                projectHealthSection
                 recentSection
             }
             .frame(maxWidth: 920, alignment: .leading)
@@ -215,6 +218,108 @@ struct WelcomeView: View {
                 .accessibilityHint(action.subtitle)
             }
         }
+    }
+
+    private var workspaceTitle: String {
+        App.workSpaceStorage.currentDirectory.name.isEmpty ? "Workspace" : App.workSpaceStorage.currentDirectory.name
+    }
+
+    private var workspaceDetail: String {
+        URL(string: App.workSpaceStorage.currentDirectory.url)?.path ?? App.workSpaceStorage.currentDirectory.url
+    }
+
+    private var debugInfo: String {
+        [
+            "App Code Feedback",
+            "Workspace: \(workspaceDetail)",
+            "Branch: \(App.branch.isEmpty ? "No Git branch" : App.branch)",
+            "Changes: \(App.gitTracks.count)",
+            "Terminals: \(App.terminalManager.terminals.count)",
+            "Editor ready: \(App.stateManager.isMonacoEditorInitialized)",
+            "Language service: \(App.stateManager.isSystemExtensionsInitialized)",
+            "Remote workspace: \(App.workSpaceStorage.remoteConnected)",
+            "Notifications: \(App.notificationManager.activeNotificationCount)",
+        ].joined(separator: "\n")
+    }
+
+    private func copyDebugInfo() {
+        UIPasteboard.general.string = debugInfo + "\n\n" + App.notificationManager.debugSummary()
+        App.notificationManager.showInformationMessage("Debug info copied")
+    }
+
+    private func sendFeedback() {
+        copyDebugInfo()
+        let subject = "App Code Feedback".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "App%20Code%20Feedback"
+        let body = debugInfo.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        if let url = URL(string: "mailto:?subject=\(subject)&body=\(body)") {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    private var projectHealthSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Label("Project Health", systemImage: "waveform.path.ecg.rectangle")
+                        .font(.headline)
+                        .foregroundColor(Color("T1"))
+                    Text(workspaceTitle)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Color("T1"))
+                        .lineLimit(1)
+                    Text(workspaceDetail)
+                        .font(.caption)
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                        .lineLimit(2)
+                }
+                Spacer(minLength: 0)
+                HStack(spacing: 8) {
+                    Button(action: sendFeedback) {
+                        Label("Feedback", systemImage: "paperplane")
+                    }
+                    Button(action: copyDebugInfo) {
+                        Label("Debug", systemImage: "doc.on.doc")
+                    }
+                }
+                .buttonStyle(.bordered)
+                .labelStyle(.titleAndIcon)
+                .font(.caption.weight(.semibold))
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 210 : 148), spacing: 10)], spacing: 10) {
+                healthTile("Branch", value: App.branch.isEmpty ? "No Git" : App.branch, systemImage: "point.topleft.down.curvedto.point.bottomright.up", isGood: !App.branch.isEmpty)
+                healthTile("Changes", value: App.gitTracks.isEmpty ? "Clean" : "\(App.gitTracks.count) files", systemImage: "tray.full", isGood: App.gitTracks.isEmpty)
+                healthTile("Terminals", value: "\(App.terminalManager.terminals.count) active", systemImage: "terminal", isGood: App.terminalManager.terminals.count > 0)
+                healthTile("Editor", value: App.stateManager.isMonacoEditorInitialized ? "Ready" : "Loading", systemImage: "curlybraces", isGood: App.stateManager.isMonacoEditorInitialized)
+                healthTile("Language", value: App.stateManager.isSystemExtensionsInitialized ? "Ready" : "Deferred", systemImage: "sparkle.magnifyingglass", isGood: App.stateManager.isSystemExtensionsInitialized)
+                healthTile("Mode", value: App.workSpaceStorage.remoteConnected ? "Remote" : "Local", systemImage: App.workSpaceStorage.remoteConnected ? "network" : "externaldrive", isGood: true)
+            }
+        }
+        .padding(16)
+        .background(Color(id: "sideBar.background").opacity(0.50), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .appCodeGlassPanel(cornerRadius: 18, interactive: false)
+    }
+
+    private func healthTile(_ title: LocalizedStringKey, value: String, systemImage: String, isGood: Bool) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: systemImage)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundColor(isGood ? Color.green : Color.orange)
+                .frame(width: 28, height: 28)
+                .background(Color(id: "button.background").opacity(0.24), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundColor(Color(id: "tab.inactiveForeground"))
+                Text(value)
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(Color("T1"))
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(10)
+        .background(Color(id: "editor.background").opacity(0.34), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     @ViewBuilder

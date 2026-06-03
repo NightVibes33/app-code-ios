@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct RemoteCreateSection: View {
     enum Field: Hashable {
@@ -55,6 +56,71 @@ struct RemoteCreateSection: View {
         saveCredentials = false
         username = ""
         hasSSHKey = true
+    }
+
+    private var connectionPreview: String {
+        let user = username.isEmpty ? "user" : username
+        let host = address.isEmpty ? "host" : address
+        return "\(user)@\(host):\(port.isEmpty ? "22" : port)"
+    }
+
+    private func parseConnectionString(_ rawValue: String) {
+        var value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else {
+            App.notificationManager.showInformationMessage("Clipboard is empty.")
+            return
+        }
+
+        if value.hasPrefix("ssh ") {
+            value = value.replacingOccurrences(of: "ssh ", with: "")
+        }
+        if value.hasPrefix("sftp://") || value.hasPrefix("ssh://") {
+            if let url = URL(string: value) {
+                address = url.host ?? address
+                username = url.user ?? username
+                port = url.port.map(String.init) ?? port
+                serverType = .sftp
+                App.notificationManager.showInformationMessage("Remote fields filled from URL")
+                return
+            }
+        }
+
+        let parts = value.split(separator: " ").map(String.init)
+        if let portFlagIndex = parts.firstIndex(of: "-p"), parts.indices.contains(portFlagIndex + 1) {
+            port = parts[portFlagIndex + 1]
+        }
+        let target = parts.first(where: { !$0.hasPrefix("-") && $0 != port }) ?? value
+        if target.contains("@") {
+            let pieces = target.split(separator: "@", maxSplits: 1).map(String.init)
+            username = pieces.first ?? username
+            address = pieces.dropFirst().first ?? address
+        } else {
+            address = target
+        }
+        serverType = .sftp
+        App.notificationManager.showInformationMessage("Remote fields filled")
+    }
+
+    private func pasteConnectionString() {
+        parseConnectionString(UIPasteboard.general.string ?? "")
+    }
+
+    private func validateFields() {
+        if address.isEmpty {
+            App.notificationManager.showWarningMessage("Address is missing.")
+            focusedField = .address
+        } else if username.isEmpty {
+            App.notificationManager.showWarningMessage("Username is missing.")
+            focusedField = .username
+        } else if !usesPrivateKey && password.isEmpty {
+            App.notificationManager.showWarningMessage("Password or key auth is required.")
+            focusedField = .password
+        } else if usesPrivateKey && privateKeyContent.isEmpty {
+            App.notificationManager.showWarningMessage("Private key content is missing.")
+            focusedField = .privateKeyContent
+        } else {
+            App.notificationManager.showInformationMessage("Remote fields look ready")
+        }
     }
 
     func connect() {
@@ -123,6 +189,21 @@ struct RemoteCreateSection: View {
                 .foregroundColor(Color(id: "sideBarSectionHeader.foreground"))
         ) {
             RemoteSetupHeader(serverType: serverType, usesPrivateKey: usesPrivateKey, savesCredentials: saveCredentials)
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    RemoteQuickButton(title: "Paste SSH", systemImage: "doc.on.clipboard", action: pasteConnectionString)
+                    RemoteQuickButton(title: "Check", systemImage: "checkmark.seal", action: validateFields)
+                    RemoteQuickButton(title: "Clear", systemImage: "xmark.circle", action: resetAllFields)
+                }
+                Label(connectionPreview, systemImage: "terminal")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(Color(id: "tab.inactiveForeground"))
+                    .lineLimit(1)
+            }
+            .padding(12)
+            .background(Color(id: "sideBar.background").opacity(0.42), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .appCodeGlassPanel(cornerRadius: 14, interactive: false)
 
             Group {
                 HStack {
@@ -314,6 +395,25 @@ struct RemoteCreateSection: View {
         .onAppear {
             jumpServerUrl = hostsSuitableForJumphost.first?.url
         }
+    }
+}
+
+private struct RemoteQuickButton: View {
+    let title: LocalizedStringKey
+    let systemImage: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .font(.caption.weight(.semibold))
+                .foregroundColor(Color("T1"))
+                .lineLimit(1)
+                .padding(.horizontal, 9)
+                .padding(.vertical, 7)
+                .background(Color(id: "button.background").opacity(0.30), in: Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -11,6 +11,31 @@ class NotificationManager: ObservableObject {
     @Published var notifications: [NotificationEntry] = []
     @Published var isShowingAllBanners = false
 
+    var activeNotificationCount: Int {
+        notifications.filter { !$0.isRemoved }.count
+    }
+
+    func clearAllNotifications() {
+        withAnimation {
+            notifications.removeAll()
+            isShowingAllBanners = false
+        }
+    }
+
+    func debugSummary() -> String {
+        let rows = notifications.suffix(30).map { entry in
+            let source = entry.data.source.map { " source=\($0)" } ?? ""
+            return "[\(entry.data.level)] \(entry.data.title)\(source)"
+        }
+        return ([
+            "App Code Debug Info",
+            "Notifications: \(notifications.count)",
+            "Active notifications: \(activeNotificationCount)",
+            "",
+            "Recent jobs and messages:",
+        ] + rows).joined(separator: "\n")
+    }
+
     func postProgressNotification(title: String, progress: Progress, _ arguments: CVarArg...) {
         let title = String(format: NSLocalizedString(title, comment: ""), arguments)
         DispatchQueue.main.async {
