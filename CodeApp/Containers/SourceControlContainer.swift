@@ -142,16 +142,46 @@ struct SourceControlContainer: View {
         try onStage(paths: paths)
     }
 
+    private func normalizedCloneURL(from urlString: String) -> URL? {
+        let trimmedURLString = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedURLString.isEmpty else {
+            return nil
+        }
+        if trimmedURLString.contains("://") {
+            return URL(string: trimmedURLString)
+        }
+        if let colonIndex = trimmedURLString.firstIndex(of: ":"),
+            trimmedURLString[..<colonIndex].contains("@")
+        {
+            let userAtHost = trimmedURLString[..<colonIndex]
+            let path = trimmedURLString[trimmedURLString.index(after: colonIndex)...]
+            guard !path.isEmpty else {
+                return nil
+            }
+            return URL(string: "ssh://\(userAtHost)/\(path)")
+        }
+        return URL(string: trimmedURLString)
+    }
+
+    private func repositoryName(from cloneURL: URL) -> String? {
+        let repo = cloneURL.deletingPathExtension().lastPathComponent
+        guard !repo.isEmpty else {
+            return nil
+        }
+        return repo
+    }
+
     func onClone(urlString: String) async throws {
         guard let serviceProvider = App.workSpaceStorage.gitServiceProvider else {
             throw SourceControlError.gitServiceProviderUnavailable
         }
-        guard let gitURL = URL(string: urlString) else {
+        guard let gitURL = normalizedCloneURL(from: urlString),
+            let repo = repositoryName(from: gitURL)
+        else {
             App.notificationManager.showErrorMessage("errors.source_control.invalid_url")
             throw SourceControlError.invalidURL
         }
 
-        let repo = gitURL.deletingPathExtension().lastPathComponent
         guard
             let dirURL = URL(
                 string: App.workSpaceStorage.currentDirectory.url)?

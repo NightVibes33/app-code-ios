@@ -53,6 +53,10 @@ struct ChangeLogView: View {
 
 struct WelcomeView: UIViewRepresentable {
     @EnvironmentObject var themeManager: ThemeManager
+    @SceneStorage("activitybar.selected.item") private var activeItemId: String = DefaultUIState
+        .ACTIVITYBAR_SELECTED_ITEM
+    @SceneStorage("sidebar.visible") private var isSideBarVisible: Bool = DefaultUIState
+        .SIDEBAR_VISIBLE
 
     let onCreateNewFile: () -> Void
     let onSelectFolderAsWorkspaceStorage: (URL) -> Void
@@ -122,6 +126,8 @@ struct WelcomeView: UIViewRepresentable {
                 case "appcode://openfile":
                     onSelectFile()
                 case "appcode://clone":
+                    activeItemId = "SOURCE_CONTROL"
+                    isSideBarVisible = true
                     onNavigateToCloneSection()
                 case let i where i.hasPrefix("appcode://previousFolder/"):
                     let key = Int(

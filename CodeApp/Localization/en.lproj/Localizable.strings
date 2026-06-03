@@ -13,6 +13,7 @@
 [New file](appcode://newfile)
 [Open file](appcode://openfile)
 [Open folder](appcode://openfolder)
+[Clone repository](appcode://clone)
 
 #### Help
 [Documentation](https://github.com/NightVibes33/app-code-ios)
