@@ -105,7 +105,7 @@ struct TopBar: View {
                             }
                         }) {
                             Label(
-                                NSLocalizedString("Toggle Inline View", comment: ""),
+                                NSLocalizedString("Toogle Inline View", comment: ""),
                                 systemImage: "doc.text")
                         }
                     }

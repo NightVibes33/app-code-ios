@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct SettingsView: View {
 
@@ -32,7 +31,6 @@ struct SettingsView: View {
     @State var showAllFonts = false
     @State var showsEraseAlert: Bool = false
     @State var showReceiptInformation: Bool = false
-    @State private var settingsSearch = ""
 
     let colorSchemes = ["Automatic", "Dark", "Light"]
     let renderWhitespaceOptions = ["None", "Boundary", "Selection", "Trailing", "All"]
@@ -40,34 +38,6 @@ struct SettingsView: View {
 
     private var selectedColorSchemeLabel: String {
         colorSchemes.indices.contains(preferredColorScheme) ? colorSchemes[preferredColorScheme] : colorSchemes[0]
-    }
-
-    private var settingsDebugInfo: String {
-        [
-            "App Code Settings Debug",
-            "Color scheme: \(selectedColorSchemeLabel)",
-            "Editor font size: \(editorOptions.value.fontSize)",
-            "Terminal font size: \(terminalOptions.value.fontSize)",
-            "Language service: \(languageServiceEnabled)",
-            "State restoration: \(stateRestorationEnabled)",
-            "Hidden files: \(showHiddenFiles)",
-            "Community templates: \(communityTemplatesEnabled)",
-            "Workspace: \(App.workSpaceStorage.currentDirectory.url)",
-        ].joined(separator: "\n")
-    }
-
-    private func copyDebugInfo() {
-        UIPasteboard.general.string = settingsDebugInfo + "\n\n" + App.notificationManager.debugSummary()
-        App.notificationManager.showInformationMessage("Debug info copied")
-    }
-
-    private func sendFeedback() {
-        copyDebugInfo()
-        let subject = "App Code Feedback".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "App%20Code%20Feedback"
-        let body = settingsDebugInfo.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        if let url = URL(string: "mailto:?subject=\(subject)&body=\(body)") {
-            UIApplication.shared.open(url)
-        }
     }
 
     @Environment(\.presentationMode) var presentationMode
@@ -88,11 +58,7 @@ struct SettingsView: View {
                 .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
                 .listRowBackground(Color.clear)
 
-                SettingsSearchCard(searchText: $settingsSearch)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 8, trailing: 16))
-                    .listRowBackground(Color.clear)
-
-                SettingsQuickMapCard(onSelect: { settingsSearch = $0 })
+                SettingsQuickMapCard()
                     .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 10, trailing: 16))
                     .listRowBackground(Color.clear)
 
@@ -126,12 +92,6 @@ struct SettingsView: View {
                             UIApplication.shared.open(url)
                         }) {
                             Text("Open an Issue on GitHub")
-                        }
-                        Button(action: sendFeedback) {
-                            Label("Send Feedback", systemImage: "paperplane")
-                        }
-                        Button(action: copyDebugInfo) {
-                            Label("Copy Debug Info", systemImage: "doc.on.doc")
                         }
                     }
 
@@ -424,27 +384,7 @@ private struct SettingsQuickMapItem: Identifiable {
     var id: String { title }
 }
 
-private struct SettingsSearchCard: View {
-    @Binding var searchText: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SearchBar(text: $searchText, searchAction: nil, placeholder: "Find a setting", cornerRadius: 14)
-            if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Label("Quick map focused on \(searchText)", systemImage: "scope")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(Color(id: "tab.inactiveForeground"))
-            }
-        }
-        .padding(12)
-        .background(Color(id: "sideBar.background").opacity(0.50), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .appCodeGlassPanel(cornerRadius: 16, interactive: false)
-    }
-}
-
 private struct SettingsQuickMapCard: View {
-    let onSelect: (String) -> Void
-
     private let items = [
         SettingsQuickMapItem(title: "Editor", subtitle: "Font, tabs, wrapping", systemImage: "text.cursor"),
         SettingsQuickMapItem(title: "Terminal", subtitle: "Shell font and toolbar", systemImage: "terminal"),
@@ -455,34 +395,26 @@ private struct SettingsQuickMapCard: View {
     var body: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 142), spacing: 8)], alignment: .leading, spacing: 8) {
             ForEach(items) { item in
-                Button {
-                    onSelect(item.title)
-                } label: {
-                    HStack(spacing: 9) {
-                        Image(systemName: item.systemImage)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(Color(id: "activityBar.foreground"))
-                            .frame(width: 28, height: 28)
-                            .background(Color(id: "button.background").opacity(0.30), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(item.title)
-                                .font(.caption.weight(.semibold))
-                                .foregroundColor(Color("T1"))
-                            Text(item.subtitle)
-                                .font(.caption2)
-                                .foregroundColor(Color(id: "tab.inactiveForeground"))
-                                .lineLimit(1)
-                        }
-                        Spacer(minLength: 0)
-                        Image(systemName: "magnifyingglass")
+                HStack(spacing: 9) {
+                    Image(systemName: item.systemImage)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(Color(id: "activityBar.foreground"))
+                        .frame(width: 28, height: 28)
+                        .background(Color(id: "button.background").opacity(0.30), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(item.title)
                             .font(.caption.weight(.semibold))
+                            .foregroundColor(Color("T1"))
+                        Text(item.subtitle)
+                            .font(.caption2)
                             .foregroundColor(Color(id: "tab.inactiveForeground"))
+                            .lineLimit(1)
                     }
-                    .padding(10)
-                    .background(Color(id: "sideBar.background").opacity(0.50), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .appCodeGlassPanel(cornerRadius: 14, interactive: true)
+                    Spacer(minLength: 0)
                 }
-                .buttonStyle(.plain)
+                .padding(10)
+                .background(Color(id: "sideBar.background").opacity(0.50), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .appCodeGlassPanel(cornerRadius: 14, interactive: false)
             }
         }
     }

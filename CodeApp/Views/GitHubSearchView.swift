@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct GitHubSearchView: View {
 
@@ -14,19 +13,6 @@ struct GitHubSearchView: View {
 
     let onClone: (String) async throws -> Void
     let onTap: (String) -> Void
-
-    private let quickFilters: [(String, String, String)] = [
-        ("Swift", "swift language:swift sort:stars", "swift"),
-        ("iOS", "ios app language:swift sort:stars", "iphone"),
-        ("Updated", "ios app sort:updated", "clock.arrow.circlepath"),
-        ("Stars", "ios app sort:stars", "star.fill"),
-        ("Templates", "topic:codeapp-template sort:stars", "shippingbox"),
-    ]
-
-    private func applySearch(_ query: String) {
-        App.searchManager.searchTerm = query
-        App.searchManager.search()
-    }
 
     var body: some View {
         Group {
@@ -39,23 +25,6 @@ struct GitHubSearchView: View {
                     text: $App.searchManager.searchTerm,
                     searchAction: { App.searchManager.search() }, placeholder: "GitHub",
                     cornerRadius: 13)
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(quickFilters.indices, id: \.self) { index in
-                            let filter = quickFilters[index]
-                            GitHubSearchChip(title: filter.0, systemImage: filter.2) {
-                                applySearch(filter.1)
-                            }
-                        }
-                    }
-                }
-
-                if !App.searchManager.searchResultItems.isEmpty {
-                    Text("\(App.searchManager.searchResultItems.count) repositories")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundColor(Color(id: "tab.inactiveForeground"))
-                }
             }
             .padding(.top, 4)
 
@@ -119,16 +88,6 @@ struct GitHubSearchResultCell: View {
 
                 Spacer(minLength: 8)
 
-                Button(action: { onTap(item.html_url) }) {
-                    Image(systemName: "safari")
-                        .font(.system(.caption, weight: .semibold))
-                        .foregroundColor(Color(id: "tab.inactiveForeground"))
-                        .frame(width: 28, height: 28)
-                        .background(Color(id: "button.background").opacity(0.26), in: Circle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Open Repository")
-
                 Button(action: reportRepository) {
                     Image(systemName: "hand.raised")
                         .font(.system(.caption, weight: .semibold))
@@ -171,25 +130,6 @@ struct GitHubSearchResultCell: View {
         .onTapGesture {
             onTap(item.html_url)
         }
-    }
-}
-
-private struct GitHubSearchChip: View {
-    let title: String
-    let systemImage: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Label(title, systemImage: systemImage)
-                .font(.caption.weight(.semibold))
-                .foregroundColor(Color("T1"))
-                .lineLimit(1)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(Color(id: "button.background").opacity(0.28), in: Capsule())
-        }
-        .buttonStyle(.plain)
     }
 }
 

@@ -13,36 +13,12 @@ struct SourceControlCloneSection: View {
 
     @EnvironmentObject var App: MainApp
     @State private var gitURL: String = ""
-    @State private var destinationName: String = ""
 
-    let onClone: (String, String?) async throws -> Void
+    let onClone: (String) async throws -> Void
     let onTapResult: (String) -> Void
 
     private var sanitizedURL: String {
         gitURL.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var sanitizedDestinationName: String {
-        destinationName.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var inferredRepoName: String {
-        if sanitizedURL.contains("@"), let separator = sanitizedURL.firstIndex(of: ":") {
-            return String(sanitizedURL[sanitizedURL.index(after: separator)...])
-                .split(separator: "/")
-                .last
-                .map(String.init)?
-                .replacingOccurrences(of: ".git", with: "") ?? "repo"
-        }
-        guard let url = URL(string: sanitizedURL), !url.lastPathComponent.isEmpty else {
-            return "repo"
-        }
-        return url.deletingPathExtension().lastPathComponent
-    }
-
-    private var destinationPreview: String {
-        let folder = sanitizedDestinationName.isEmpty ? inferredRepoName : sanitizedDestinationName
-        return "Will clone into /\(folder)"
     }
 
     private var canClone: Bool {
@@ -57,9 +33,6 @@ struct SourceControlCloneSection: View {
             return
         }
         gitURL = clipboardURL
-        if destinationName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            destinationName = inferredRepoName
-        }
     }
 
     private func cloneFromInput() {
@@ -67,10 +40,9 @@ struct SourceControlCloneSection: View {
         let url = sanitizedURL
         Task {
             do {
-                try await onClone(url, sanitizedDestinationName.isEmpty ? nil : sanitizedDestinationName)
+                try await onClone(url)
                 await MainActor.run {
                     gitURL = ""
-                    destinationName = ""
                 }
             } catch {
                 await MainActor.run {
@@ -145,44 +117,21 @@ struct SourceControlCloneSection: View {
                 .padding(8)
                 .background(Color.init(id: "input.background"), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
 
-                HStack(spacing: 8) {
-                    Image(systemName: "folder.badge.gearshape")
-                        .foregroundColor(Color(id: "tab.inactiveForeground"))
-                        .font(.subheadline)
-
-                    TextField("Destination folder", text: $destinationName)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
-
-                    Button("Use URL") {
-                        destinationName = inferredRepoName
-                    }
-                    .font(.caption.weight(.semibold))
-                    .buttonStyle(.plain)
-                    .foregroundColor(Color(id: "activityBar.foreground"))
-                }
-                .padding(8)
-                .background(Color.init(id: "input.background"), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 74), spacing: 8)], alignment: .leading, spacing: 8) {
                     SourceControlClonePill(title: "HTTPS", systemImage: "lock")
                     SourceControlClonePill(title: "SSH", systemImage: "key")
                     SourceControlCloneActionPill(title: "Paste", systemImage: "doc.on.clipboard", action: pasteRemoteURL)
-                    SourceControlCloneActionPill(title: "Clear", systemImage: "xmark.circle", action: {
-                        gitURL = ""
-                        destinationName = ""
-                    })
-                    .disabled(gitURL.isEmpty && destinationName.isEmpty)
+                    SourceControlCloneActionPill(title: "Clear", systemImage: "xmark.circle", action: { gitURL = "" })
+                        .disabled(gitURL.isEmpty)
                 }
 
-                DescriptionText(verbatim: destinationPreview)
                 DescriptionText("Example: https://github.com/NightVibes33/app-code-ios.git")
             }
             .padding(14)
             .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .appCodeGlassPanel(cornerRadius: 18, interactive: false)
 
-            GitHubSearchView(onClone: { url in try await onClone(url, nil) }, onTap: onTapResult)
+            GitHubSearchView(onClone: onClone, onTap: onTapResult)
         }
     }
 }

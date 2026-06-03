@@ -5,7 +5,6 @@
 //  Created by Ken Chung on 5/12/2020.
 //
 
-import Foundation
 import SwiftUI
 
 class GitHubSearchManager: ObservableObject {
@@ -72,7 +71,7 @@ class GitHubSearchManager: ObservableObject {
             return
         }
 
-        let query = trimmedTerm
+        let query = trimmedTerm + "&per_page=10"
         isSearching = true
         errorMessage = ""
 
@@ -112,27 +111,11 @@ class GitHubSearchManager: ObservableObject {
     }
 
     private func executeQuery(query: String) async throws -> [item] {
-        var cleanedQuery = query
-        var sort: String? = nil
-        for token in ["sort:stars", "sort:updated", "sort:forks"] {
-            if cleanedQuery.contains(token) {
-                sort = token.replacingOccurrences(of: "sort:", with: "")
-                cleanedQuery = cleanedQuery.replacingOccurrences(of: token, with: "")
-            }
+        guard let query = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        else {
+            return []
         }
-        cleanedQuery = cleanedQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        var components = URLComponents(string: GitHubSearchManager.endpoint)!
-        var queryItems = [
-            URLQueryItem(name: "q", value: cleanedQuery),
-            URLQueryItem(name: "per_page", value: "12"),
-        ]
-        if let sort {
-            queryItems.append(URLQueryItem(name: "sort", value: sort))
-            queryItems.append(URLQueryItem(name: "order", value: "desc"))
-        }
-        components.queryItems = queryItems
-        guard let url = components.url else { return [] }
+        let url = URL(string: GitHubSearchManager.endpoint + "?q=\(query)")!
 
         let (data, _) = try await URLSession.shared.data(from: url)
         let result = try JSONDecoder().decode(searchResult.self, from: data)

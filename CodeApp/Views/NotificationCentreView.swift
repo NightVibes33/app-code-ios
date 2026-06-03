@@ -14,10 +14,6 @@ struct NotificationCentreView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            if App.notificationManager.isShowingAllBanners {
-                NotificationHistoryPanel()
-            }
-
             ForEach(App.notificationManager.notifications.indices, id: \.self) { i in
                 if !App.notificationManager.notifications[i].isRemoved
                     && (App.notificationManager.notifications[i].isPresented
@@ -31,57 +27,6 @@ struct NotificationCentreView: View {
                 }
             }
         }
-    }
-}
-
-private struct NotificationHistoryPanel: View {
-    @EnvironmentObject var App: MainApp
-
-    private var visibleEntries: [NotificationEntry] {
-        Array(App.notificationManager.notifications.filter { !$0.isRemoved }.suffix(8))
-    }
-
-    private func copyDebugSummary() {
-        UIPasteboard.general.string = App.notificationManager.debugSummary()
-        App.notificationManager.showInformationMessage("Debug info copied")
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
-                Label("Job Center", systemImage: "tray.full")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(Color("T1"))
-                Spacer()
-                NotificationActionButton(title: "Copy", systemImage: "doc.on.doc", action: copyDebugSummary)
-                NotificationActionButton(title: "Clear", systemImage: "trash") {
-                    App.notificationManager.clearAllNotifications()
-                }
-            }
-
-            if visibleEntries.isEmpty {
-                Text("No active jobs. Build, clone, search, and Git messages will appear here.")
-                    .font(.caption)
-                    .foregroundColor(Color(id: "tab.inactiveForeground"))
-            } else {
-                VStack(alignment: .leading, spacing: 7) {
-                    ForEach(visibleEntries) { entry in
-                        HStack(alignment: .top, spacing: 8) {
-                            entry.data.level.icon
-                            Text(entry.data.title)
-                                .font(.caption)
-                                .foregroundColor(Color("T1"))
-                                .lineLimit(2)
-                            Spacer(minLength: 0)
-                        }
-                    }
-                }
-            }
-        }
-        .padding(12)
-        .frame(maxWidth: 330, alignment: .leading)
-        .background(Color(id: "sideBar.background").opacity(0.84), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .appCodeGlassPanel(cornerRadius: 16, interactive: true)
     }
 }
 

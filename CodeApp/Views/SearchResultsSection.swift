@@ -29,10 +29,7 @@ struct SearchResultsSection: View {
                     }
                 }.foregroundColor(Color(id: "sideBarSectionHeader.foreground"))
         ) {
-            if App.textSearchManager.isSearching {
-                AppCodeSkeletonRows(count: 4)
-                    .padding(.vertical, 4)
-            } else if App.textSearchManager.results.isEmpty {
+            if App.textSearchManager.results.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
                     Image(systemName: App.textSearchManager.searchTerm.isEmpty ? "magnifyingglass" : "doc.text.magnifyingglass")
                         .font(.system(size: 22, weight: .semibold))
@@ -40,7 +37,7 @@ struct SearchResultsSection: View {
                     Text(App.textSearchManager.searchTerm.isEmpty ? "Search this workspace" : "No matches found")
                         .font(.headline)
                         .foregroundColor(Color("T1"))
-                    Text(App.textSearchManager.searchTerm.isEmpty ? "Type a term above. Use Include for patterns like *.swift and Exclude for folders like node_modules,.git." : "Try a shorter term or adjust include/exclude filters.")
+                    Text(App.textSearchManager.searchTerm.isEmpty ? "Type a term above to scan files outside node_modules and .git." : "Try a shorter term or check the current workspace folder.")
                         .font(.caption)
                         .foregroundColor(Color(id: "tab.inactiveForeground"))
                         .fixedSize(horizontal: false, vertical: true)

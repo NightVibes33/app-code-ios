@@ -14,9 +14,6 @@ class TextSearchManager: ObservableObject {
     @Published var message = ""
     @Published var expansionStates: [String: Bool] = [:]
     @Published var results: [String: [SearchResult]] = [:]
-    @Published var isSearching = false
-    @Published var includePattern = ""
-    @Published var excludePattern = "node_modules,.git"
 
     var executor: Executor? = nil
     private var resultCount = 0
@@ -70,62 +67,18 @@ class TextSearchManager: ObservableObject {
     func removeAllResults() {
         results.removeAll()
         message.removeAll()
-        tempResponse.removeAll()
-        resultCount = 0
-        isSearching = false
-    }
-
-    func cancelSearch() {
-        executor?.kill()
-        isSearching = false
-        message = "Search cancelled"
-    }
-
-    private func shellEscaped(_ value: String) -> String {
-        let singleQuote = "'"
-        return singleQuote + value.replacingOccurrences(
-            of: singleQuote,
-            with: singleQuote + "\\" + singleQuote + singleQuote
-        ) + singleQuote
-    }
-
-    private var grepExcludes: String {
-        excludePattern
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-            .map { "--exclude-dir=\(shellEscaped($0))" }
-            .joined(separator: " ")
-    }
-
-    private var grepIncludes: String {
-        includePattern
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-            .map { "--include=\(shellEscaped($0))" }
-            .joined(separator: " ")
     }
 
     func search(str: String, path: String) {
-        let term = str.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !term.isEmpty else {
-            removeAllResults()
-            return
-        }
-
         results = [:]
-        message = "Searching..."
-        tempResponse = ""
         resultCount = 0
-        isSearching = true
-
-        let command = "grep -rin \(grepExcludes) \(grepIncludes) -m 1000 \(shellEscaped(term)) \(shellEscaped(path))"
-        executor?.dispatch(command: command) { _ in
+        executor?.dispatch(
+            command:
+                "grep -rin --exclude-dir=node_modules --exclude-dir=.git -m 1000 \"\(str.replacingOccurrences(of: "\"", with: #"\""#))\" \"\(path)\""
+        ) { _ in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.parseResult()
                 self.tempResponse = ""
-                self.isSearching = false
             }
         }
     }

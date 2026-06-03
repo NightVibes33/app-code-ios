@@ -79,22 +79,15 @@ struct EditorView: View {
                 if !App.stateManager.isMonacoEditorInitialized {
                     EditorImplementationView(implementation: App.monacoInstance)
                         .overlay {
-                            VStack(spacing: 14) {
-                                AppCodeSkeletonRows(count: 5)
-                                    .frame(maxWidth: 420)
-                                Text("Preparing editor")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundColor(Color(id: "tab.inactiveForeground"))
-                            }
-                            .padding(24)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.init(id: "editor.background"))
+                            ProgressView()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .background(Color.init(id: "editor.background"))
                         }
                 } else if let editor = App.activeEditor {
                     ZStack {
 
                         VStack {
-                            Button("Command Palette") {
+                            Button("Command Palatte") {
                                 Task {
                                     await App.monacoInstance._toggleCommandPalatte()
                                 }

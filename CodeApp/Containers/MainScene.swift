@@ -147,7 +147,6 @@ private struct CommandPaletteView: View {
     @SceneStorage("panel.focusedId") private var currentPanelId: String = DefaultUIState.PANEL_FOCUSED_ID
 
     @State private var query = ""
-    @AppStorage("commandPalette.recentCommandIds") private var recentCommandIds = ""
 
     private var commands: [CommandPaletteItem] {
         [
@@ -165,74 +164,12 @@ private struct CommandPaletteView: View {
         ]
     }
 
-    private var normalizedQuery: String {
-        query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-    }
-
-    private var recentCommandIdList: [String] {
-        recentCommandIds.split(separator: ",").map(String.init)
-    }
-
-    private var recentCommands: [CommandPaletteItem] {
-        recentCommandIdList.compactMap { id in
-            commands.first { $0.id == id }
+    private var filteredCommands: [CommandPaletteItem] {
+        let normalized = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !normalized.isEmpty else { return commands }
+        return commands.filter { item in
+            (item.title + " " + item.subtitle + " " + item.keywords).lowercased().contains(normalized)
         }
-    }
-
-    private var displayedCommands: [CommandPaletteItem] {
-        guard !normalizedQuery.isEmpty else { return commands }
-        return commands.enumerated().compactMap { index, item -> (index: Int, score: Int, item: CommandPaletteItem)? in
-            let score = commandScore(item)
-            return score > 0 ? (index, score, item) : nil
-        }
-        .sorted { lhs, rhs in
-            if lhs.score == rhs.score { return lhs.index < rhs.index }
-            return lhs.score > rhs.score
-        }
-        .map { $0.item }
-    }
-
-    private func commandScore(_ item: CommandPaletteItem) -> Int {
-        let title = item.title.lowercased()
-        let subtitle = item.subtitle.lowercased()
-        let keywords = item.keywords.lowercased()
-        let category = commandCategory(item).lowercased()
-        var score = 0
-
-        if title == normalizedQuery { score += 1000 }
-        if title.hasPrefix(normalizedQuery) { score += 700 }
-        if title.split(separator: " ").contains(where: { $0.hasPrefix(normalizedQuery) }) { score += 420 }
-        if keywords.contains(normalizedQuery) { score += 260 }
-        if subtitle.contains(normalizedQuery) { score += 120 }
-        if category.contains(normalizedQuery) { score += 80 }
-        if recentCommandIdList.contains(item.id) { score += 30 }
-        return score
-    }
-
-    private func commandCategory(_ item: CommandPaletteItem) -> String {
-        switch item.id {
-        case "clone", "source-control": return "Git"
-        case "terminal", "new-terminal": return "Terminal"
-        case "search", "explorer": return "Workspace"
-        case "settings": return "Settings"
-        default: return "File"
-        }
-    }
-
-    private func commandShortcut(_ item: CommandPaletteItem) -> String? {
-        switch item.id {
-        case "new-file": return "⌘N"
-        case "open-file": return "⌘O"
-        case "search": return "⇧⌘F"
-        case "terminal": return "⌘J"
-        case "settings": return "⌘,"
-        default: return nil
-        }
-    }
-
-    private func recordRecent(_ command: CommandPaletteItem) {
-        let existing = recentCommandIdList.filter { $0 != command.id }
-        recentCommandIds = ([command.id] + existing).prefix(6).joined(separator: ",")
     }
 
     private func showSidebar(_ itemId: String) {
@@ -249,7 +186,6 @@ private struct CommandPaletteView: View {
     }
 
     private func runCommand(_ command: CommandPaletteItem) {
-        recordRecent(command)
         dismiss()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             command.action()
@@ -275,63 +211,7 @@ private struct CommandPaletteView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 9) {
-                        if normalizedQuery.isEmpty && !recentCommands.isEmpty {
-                            HStack {
-                                Label("Recent", systemImage: "clock.arrow.circlepath")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundColor(Color(id: "tab.inactiveForeground"))
-                                Spacer()
-                            }
-                            ForEach(recentCommands.prefix(4)) { command in
-                                Button {
-                                    runCommand(command)
-                                } label: {
-                                    HStack(spacing: 10) {
-                                        Image(systemName: command.systemImage)
-                                            .foregroundColor(Color(id: "activityBar.foreground"))
-                                            .frame(width: 24)
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(command.title)
-                                                .font(.subheadline.weight(.semibold))
-                                                .foregroundColor(Color("T1"))
-                                            Text(commandCategory(command))
-                                                .font(.caption2.weight(.semibold))
-                                                .foregroundColor(Color(id: "tab.inactiveForeground"))
-                                        }
-                                        Spacer()
-                                        Image(systemName: "arrow.turn.down.left")
-                                            .font(.caption.weight(.semibold))
-                                            .foregroundColor(Color(id: "tab.inactiveForeground"))
-                                    }
-                                    .padding(10)
-                                    .background(Color(id: "button.background").opacity(0.2), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                            HStack {
-                                Text("All Commands")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundColor(Color(id: "tab.inactiveForeground"))
-                                Spacer()
-                            }
-                            .padding(.top, 4)
-                        }
-
-                        if displayedCommands.isEmpty {
-                            VStack(spacing: 8) {
-                                Image(systemName: "magnifyingglass")
-                                    .font(.title3)
-                                    .foregroundColor(Color(id: "tab.inactiveForeground"))
-                                Text("No command matches \"\(query)\"")
-                                    .font(.callout)
-                                    .foregroundColor(Color(id: "tab.inactiveForeground"))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 28)
-                        }
-
-                        ForEach(displayedCommands) { command in
+                        ForEach(filteredCommands) { command in
                             Button {
                                 runCommand(command)
                             } label: {
@@ -341,20 +221,7 @@ private struct CommandPaletteView: View {
                                         .foregroundColor(Color(id: "activityBar.foreground"))
                                         .frame(width: 38, height: 38)
                                         .background(Color(id: "button.background").opacity(0.34), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        HStack(spacing: 6) {
-                                            Text(commandCategory(command))
-                                                .font(.caption2.weight(.bold))
-                                                .foregroundColor(Color(id: "activityBar.foreground"))
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 2)
-                                                .background(Color(id: "button.background").opacity(0.24), in: Capsule())
-                                            if let shortcut = commandShortcut(command) {
-                                                Text(shortcut)
-                                                    .font(.caption2.monospaced().weight(.semibold))
-                                                    .foregroundColor(Color(id: "tab.inactiveForeground"))
-                                            }
-                                        }
+                                    VStack(alignment: .leading, spacing: 2) {
                                         Text(command.title)
                                             .font(.subheadline.weight(.semibold))
                                             .foregroundColor(Color("T1"))
@@ -364,7 +231,7 @@ private struct CommandPaletteView: View {
                                             .lineLimit(2)
                                     }
                                     Spacer(minLength: 0)
-                                    Image(systemName: "arrow.turn.down.left")
+                                    Image(systemName: "return")
                                         .font(.caption.weight(.semibold))
                                         .foregroundColor(Color(id: "tab.inactiveForeground"))
                                 }
@@ -509,8 +376,10 @@ private struct MainView: View {
 
             if !firstRunCommandCenterPresented {
                 firstRunCommandCenterPresented = true
-                if App.editors.isEmpty {
-                    App.showWelcomeMessage()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                    if App.editors.isEmpty {
+                        stateManager.showsCommandPalette = true
+                    }
                 }
             }
 
