@@ -17,39 +17,34 @@ struct SearchBar: View {
     let cornerRadius: CGFloat?
 
     var body: some View {
-        HStack {
-
+        HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-                .font(.subheadline)
+                .foregroundColor(Color(id: "tab.inactiveForeground"))
+                .font(.subheadline.weight(.semibold))
 
             TextField(placeholder, text: $text, onCommit: { searchAction?() })
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
-                .overlay(
-                    HStack {
-                        Spacer()
-
-                        if isEditing && text != "" {
-                            Image(systemName: "multiply.circle.fill")
-                                .foregroundColor(.gray)
-                                .padding(.trailing, 8)
-                                .highPriorityGesture(
-                                    TapGesture()
-                                        .onEnded({
-                                            self.text = ""
-                                            clearAction?()
-                                        })
-                                )
-                        }
-                    }
-                )
+                .submitLabel(.search)
                 .onTapGesture {
                     self.isEditing = true
                 }
 
-        }.padding(7)
-            .background(Color.init(id: "input.background"))
-            .cornerRadius(cornerRadius ?? 10)
+            if isEditing && text != "" {
+                Button {
+                    self.text = ""
+                    clearAction?()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                        .font(.subheadline.weight(.semibold))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Clear Search")
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(Color.init(id: "input.background"), in: RoundedRectangle(cornerRadius: cornerRadius ?? 10, style: .continuous))
     }
 }
