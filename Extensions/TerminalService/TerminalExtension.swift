@@ -23,6 +23,13 @@ private struct ToolbarView: View {
 
     var body: some View {
         HStack(spacing: 12) {
+            Button(action: {
+                App.terminalManager.stopActiveTerminal()
+            }) {
+                Image(systemName: "stop.fill")
+            }
+            .help("Stop Running Command")
+
             if App.terminalManager.canCreateNewTerminal {
                 Button(action: {
                     App.terminalManager.createTerminal()

@@ -217,6 +217,20 @@ class TerminalManager: ObservableObject {
         return terminal.executor?.state == .running || terminal.executor?.state == .interactive
     }
 
+    func stopActiveTerminal() {
+        assertMainThread()
+        guard let id = activeTerminal?.id else { return }
+        stopTerminal(id: id)
+    }
+
+    func stopTerminal(id: UUID) {
+        assertMainThread()
+        guard let terminal = terminals.first(where: { $0.id == id }) else { return }
+        terminal.stopRunningCommand()
+        syncRemoteTerminalId()
+        objectWillChange.send()
+    }
+
     func setActiveTerminal(id: UUID) {
         assertMainThread()
         guard let terminal = terminals.first(where: { $0.id == id }) else {

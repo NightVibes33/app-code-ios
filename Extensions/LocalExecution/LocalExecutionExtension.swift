@@ -42,31 +42,52 @@ class LocalExecutionExtension: CodeAppExtension {
         contribution.toolBar.registerItem(item: toolbarItem)
     }
 
+    @MainActor
+    private func terminalForLocalExecution(app: MainApp) -> TerminalInstance? {
+        if let activeTerminal = app.terminalManager.activeTerminal,
+            activeTerminal.terminalServiceProvider == nil,
+            activeTerminal.executor?.state == .idle
+        {
+            return activeTerminal
+        }
+
+        if let idleTerminal = app.terminalManager.terminals.first(where: {
+            $0.terminalServiceProvider == nil && $0.executor?.state == .idle
+        }) {
+            app.terminalManager.setActiveTerminal(id: idleTerminal.id)
+            return idleTerminal
+        }
+
+        if app.terminalManager.canCreateNewTerminal {
+            let terminal = app.terminalManager.createTerminal()
+            app.notificationManager.showInformationMessage(
+                "Running in \(terminal.name) because the active terminal is busy.")
+            return terminal
+        }
+
+        return nil
+    }
+
+    @MainActor
     private func runCodeLocally(app: MainApp) async {
-
-        guard let activeTerminal = app.terminalManager.activeTerminal else {
-            app.notificationManager.showErrorMessage("Cannot run: no active terminal.")
-            return
-        }
-
-        guard let executor = await activeTerminal.executor else {
-            app.notificationManager.showErrorMessage(
-                "Cannot run: terminal '\(await activeTerminal.name)' has no executor.")
-            return
-        }
-
-        guard executor.state == .idle else {
-            app.notificationManager.showWarningMessage(
-                "Cannot run: terminal '\(await activeTerminal.name)' executor is \(executor.state.displayName) (expected idle)."
-            )
-            return
-        }
-
         guard let activeTextEditor = app.activeTextEditor else {
             return
         }
 
         guard let commands = LOCAL_EXECUTION_COMMANDS[activeTextEditor.languageIdentifier] else {
+            return
+        }
+
+        guard let executionTerminal = terminalForLocalExecution(app: app) else {
+            app.notificationManager.showWarningMessage(
+                "All terminals are busy. Stop a running command or wait for it to finish before running code."
+            )
+            return
+        }
+
+        guard let executor = executionTerminal.executor else {
+            app.notificationManager.showErrorMessage(
+                "Cannot run: terminal '\(executionTerminal.name)' has no executor.")
             return
         }
 
@@ -87,13 +108,13 @@ class LocalExecutionExtension: CodeAppExtension {
         }
 
         if app.terminalOptions.value.shouldShowCompilerPath {
-            activeTerminal.executeScript(
+            executionTerminal.executeScript(
                 "localEcho.println(`\(parsedCommands.joined(separator: " && "))`);readLine('');")
         } else {
             let commandName =
                 parsedCommands.first?.components(separatedBy: " ").first
                 ?? activeTextEditor.languageIdentifier
-            activeTerminal.executeScript("localEcho.println(`\(commandName)`);readLine('');")
+            executionTerminal.executeScript("localEcho.println(`\(commandName)`);readLine('');")
         }
         executor.evaluateCommands(parsedCommands)
     }

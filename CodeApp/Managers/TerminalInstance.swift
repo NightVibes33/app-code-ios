@@ -150,6 +150,26 @@ class TerminalInstance: NSObject, WKScriptMessageHandler, WKNavigationDelegate, 
         self.executeScript(#"term.write('\033c"# + "\(prompt)' + localEcho._input)")
     }
 
+    func stopRunningCommand() {
+        if terminalServiceProvider != nil {
+            terminalServiceProvider?.kill()
+            terminalServiceProvider = nil
+            return
+        }
+
+        let isExecutorBusy = executor.map { $0.state != .idle } ?? false
+        guard isExecutorBusy || isInteractive else { return }
+
+        if isInteractive {
+            stopInteractive()
+        }
+
+        if isExecutorBusy {
+            executor?.forceStop()
+        }
+        clearLine()
+    }
+
     func applyTheme(rawTheme: [String: Any]) {
         guard let colorArray = rawTheme["colors"] as? [String: String] else {
             return

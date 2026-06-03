@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 import ios_system
 
 class Executor {
@@ -91,10 +92,32 @@ class Executor {
     func kill() {
         if javascriptRunning {
             javascriptRunning = false
+            stdout_active = false
             return
         }
         ios_switchSession(persistentIdentifier.toCString())
         ios_kill()
+        stdout_active = false
+    }
+
+    func forceStop() {
+        guard state != .idle else { return }
+        kill()
+        endOfTransmission()
+        if Thread.isMainThread {
+            state = .idle
+        } else {
+            DispatchQueue.main.async { self.state = .idle }
+        }
+    }
+
+    private func waitForStdoutDrain(timeout: TimeInterval = 0.75) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while stdout_active && Date() < deadline {
+            fflush(thread_stdout)
+            Thread.sleep(forTimeInterval: 0.01)
+        }
+        stdout_active = false
     }
 
     func setWindowSize(cols: Int, rows: Int) {
@@ -223,11 +246,11 @@ class Executor {
             if writeOpen >= 0 {
                 // Pipe is still open, send information to close it, once all output has been processed.
                 stdout_pipe.fileHandleForWriting.write(self.END_OF_TRANSMISSION.data(using: .utf8)!)
-                while self.stdout_active {
-                    fflush(thread_stdout)
-                }
+                self.waitForStdoutDrain()
+                try? stdout_pipe.fileHandleForWriting.close()
             }
 
+            stdout_pipe.fileHandleForReading.readabilityHandler = nil
             close(stdout_pipe.fileHandleForReading.fileDescriptor)
 
             DispatchQueue.main.async {

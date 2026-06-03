@@ -43,6 +43,9 @@ struct TerminalTabBar: View {
                             onSelect: {
                                 App.terminalManager.setActiveTerminal(id: terminal.id)
                             },
+                            onKill: {
+                                App.terminalManager.stopTerminal(id: terminal.id)
+                            },
                             onClose: {
                                 App.terminalManager.closeTerminal(id: terminal.id)
                             }
@@ -64,6 +67,7 @@ struct TerminalTabRow: View {
     let isActive: Bool
     let canClose: Bool
     let onSelect: () -> Void
+    let onKill: () -> Void
     let onClose: () -> Void
 
     @State private var showingKillConfirmation = false
@@ -130,6 +134,12 @@ struct TerminalTabRow: View {
                 comment: "Accessibility hint for terminal tab")
         )
         .contextMenu {
+            Button(role: .destructive) {
+                onKill()
+            } label: {
+                Label("Stop Command", systemImage: "stop.fill")
+            }
+
             if canClose {
                 Button(role: .destructive) {
                     if isTerminalBusy {
