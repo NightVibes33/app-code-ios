@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import UIKit
 
 struct SourceControlCloneSection: View {
 
@@ -25,29 +24,13 @@ struct SourceControlCloneSection: View {
         !sanitizedURL.isEmpty && !App.stateManager.gitServiceIsBusy
     }
 
-    private func pasteRemoteURL() {
-        guard let clipboardURL = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines),
-            !clipboardURL.isEmpty
-        else {
-            App.notificationManager.showInformationMessage("Clipboard is empty.")
-            return
-        }
-        gitURL = clipboardURL
-    }
-
     private func cloneFromInput() {
         guard canClone else { return }
         let url = sanitizedURL
         Task {
-            do {
-                try await onClone(url)
-                await MainActor.run {
-                    gitURL = ""
-                }
-            } catch {
-                await MainActor.run {
-                    App.notificationManager.showErrorMessage(error.localizedDescription)
-                }
+            try await onClone(url)
+            await MainActor.run {
+                gitURL = ""
             }
         }
     }
@@ -117,12 +100,9 @@ struct SourceControlCloneSection: View {
                 .padding(8)
                 .background(Color.init(id: "input.background"), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 74), spacing: 8)], alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
                     SourceControlClonePill(title: "HTTPS", systemImage: "lock")
                     SourceControlClonePill(title: "SSH", systemImage: "key")
-                    SourceControlCloneActionPill(title: "Paste", systemImage: "doc.on.clipboard", action: pasteRemoteURL)
-                    SourceControlCloneActionPill(title: "Clear", systemImage: "xmark.circle", action: { gitURL = "" })
-                        .disabled(gitURL.isEmpty)
                 }
 
                 DescriptionText("Example: https://github.com/NightVibes33/app-code-ios.git")
@@ -144,31 +124,8 @@ private struct SourceControlClonePill: View {
         Label(title, systemImage: systemImage)
             .font(.caption.weight(.semibold))
             .foregroundColor(Color("T1"))
-            .lineLimit(1)
-            .minimumScaleFactor(0.78)
             .padding(.horizontal, 9)
             .padding(.vertical, 6)
             .background(Color(id: "button.background").opacity(0.30), in: Capsule())
-    }
-}
-
-
-private struct SourceControlCloneActionPill: View {
-    let title: String
-    let systemImage: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Label(title, systemImage: systemImage)
-                .font(.caption.weight(.semibold))
-                .foregroundColor(Color("T1"))
-                .lineLimit(1)
-                .minimumScaleFactor(0.78)
-                .padding(.horizontal, 9)
-                .padding(.vertical, 6)
-                .background(Color(id: "button.background").opacity(0.42), in: Capsule())
-        }
-        .buttonStyle(.plain)
     }
 }

@@ -125,136 +125,6 @@ struct MainScene: View {
     }
 }
 
-
-private struct CommandPaletteItem: Identifiable {
-    let id: String
-    let title: String
-    let subtitle: String
-    let systemImage: String
-    let keywords: String
-    let action: () -> Void
-}
-
-private struct CommandPaletteView: View {
-    @EnvironmentObject var App: MainApp
-    @EnvironmentObject var stateManager: MainStateManager
-    @Environment(\.dismiss) private var dismiss
-
-    @SceneStorage("activitybar.selected.item") private var activeItemId: String = DefaultUIState.ACTIVITYBAR_SELECTED_ITEM
-    @SceneStorage("sidebar.visible") private var isSideBarVisible: Bool = DefaultUIState.SIDEBAR_VISIBLE
-    @SceneStorage("panel.visible") private var isPanelVisible: Bool = DefaultUIState.PANEL_IS_VISIBLE
-    @SceneStorage("panel.height") private var panelHeight: Double = DefaultUIState.PANEL_HEIGHT
-    @SceneStorage("panel.focusedId") private var currentPanelId: String = DefaultUIState.PANEL_FOCUSED_ID
-
-    @State private var query = ""
-
-    private var commands: [CommandPaletteItem] {
-        [
-            CommandPaletteItem(id: "new-file", title: "New File", subtitle: "Create a file in the current workspace.", systemImage: "doc.badge.plus", keywords: "create file new document", action: { stateManager.showsNewFileSheet = true }),
-            CommandPaletteItem(id: "open-file", title: "Open File", subtitle: "Pick a single file from Files.", systemImage: "doc.text.magnifyingglass", keywords: "open file document picker", action: { stateManager.showsFilePicker = true }),
-            CommandPaletteItem(id: "open-folder", title: "Open Folder", subtitle: "Switch to a workspace folder.", systemImage: "folder.badge.gearshape", keywords: "workspace folder project files", action: { stateManager.showsDirectoryPicker = true }),
-            CommandPaletteItem(id: "clone", title: "Clone Repository", subtitle: "Open Source Control for GitHub or SSH clone.", systemImage: "arrow.down.doc.fill", keywords: "git github clone repository source control", action: { showSidebar("SOURCE_CONTROL") }),
-            CommandPaletteItem(id: "search", title: "Search Workspace", subtitle: "Find text across the current folder.", systemImage: "magnifyingglass", keywords: "find search grep workspace", action: { showSidebar("SEARCH") }),
-            CommandPaletteItem(id: "explorer", title: "Show Explorer", subtitle: "Browse files, folders, and open editors.", systemImage: "doc.text.magnifyingglass", keywords: "explorer sidebar files folders", action: { showSidebar("EXPLORER") }),
-            CommandPaletteItem(id: "source-control", title: "Show Source Control", subtitle: "Review changes, commits, branches, and remotes.", systemImage: "point.topleft.down.curvedto.point.bottomright.up", keywords: "git source control commit branch push pull", action: { showSidebar("SOURCE_CONTROL") }),
-            CommandPaletteItem(id: "terminal", title: "Show Terminal", subtitle: "Open the terminal panel.", systemImage: "terminal", keywords: "console terminal shell panel", action: { showPanel("TERMINAL") }),
-            CommandPaletteItem(id: "new-terminal", title: "New Terminal", subtitle: "Create and focus another terminal session.", systemImage: "plus.rectangle.on.rectangle", keywords: "terminal shell new", action: { App.terminalManager.createTerminal(); showPanel("TERMINAL") }),
-            CommandPaletteItem(id: "welcome", title: "Welcome Screen", subtitle: "Return to the App Code command center.", systemImage: "sparkles.rectangle.stack", keywords: "home welcome start command center", action: { App.showWelcomeMessage() }),
-            CommandPaletteItem(id: "settings", title: "Settings", subtitle: "Editor, terminal, Git, remote, and appearance settings.", systemImage: "slider.horizontal.3", keywords: "preferences settings config", action: { stateManager.showsSettingsSheet = true }),
-        ]
-    }
-
-    private var filteredCommands: [CommandPaletteItem] {
-        let normalized = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !normalized.isEmpty else { return commands }
-        return commands.filter { item in
-            (item.title + " " + item.subtitle + " " + item.keywords).lowercased().contains(normalized)
-        }
-    }
-
-    private func showSidebar(_ itemId: String) {
-        activeItemId = itemId
-        isSideBarVisible = true
-    }
-
-    private func showPanel(_ panelId: String) {
-        currentPanelId = panelId
-        if panelHeight < 120 {
-            panelHeight = 240
-        }
-        isPanelVisible = true
-    }
-
-    private func runCommand(_ command: CommandPaletteItem) {
-        dismiss()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            command.action()
-        }
-    }
-
-    var body: some View {
-        NavigationView {
-            VStack(alignment: .leading, spacing: 14) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Command Center")
-                        .font(.system(.title2, design: .rounded).weight(.bold))
-                        .foregroundColor(Color("T1"))
-                    Text("Jump into the main workflows without digging through tiny toolbar menus.")
-                        .font(.caption)
-                        .foregroundColor(Color(id: "tab.inactiveForeground"))
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-
-                SearchBar(text: $query, searchAction: nil, placeholder: "Command or action", cornerRadius: 14)
-                    .padding(.horizontal, 16)
-
-                ScrollView {
-                    LazyVStack(spacing: 9) {
-                        ForEach(filteredCommands) { command in
-                            Button {
-                                runCommand(command)
-                            } label: {
-                                HStack(spacing: 12) {
-                                    Image(systemName: command.systemImage)
-                                        .font(.system(size: 18, weight: .semibold))
-                                        .foregroundColor(Color(id: "activityBar.foreground"))
-                                        .frame(width: 38, height: 38)
-                                        .background(Color(id: "button.background").opacity(0.34), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(command.title)
-                                            .font(.subheadline.weight(.semibold))
-                                            .foregroundColor(Color("T1"))
-                                        Text(command.subtitle)
-                                            .font(.caption)
-                                            .foregroundColor(Color(id: "tab.inactiveForeground"))
-                                            .lineLimit(2)
-                                    }
-                                    Spacer(minLength: 0)
-                                    Image(systemName: "return")
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundColor(Color(id: "tab.inactiveForeground"))
-                                }
-                                .padding(12)
-                                .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                                .appCodeGlassPanel(cornerRadius: 16, interactive: true)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
-                }
-            }
-            .background(Color(id: "editor.background").ignoresSafeArea())
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                Button("Done") { dismiss() }
-            }
-        }
-    }
-}
-
 private struct MainView: View {
 
     @EnvironmentObject var App: MainApp
@@ -274,7 +144,6 @@ private struct MainView: View {
     @AppStorage("runeStoneEditorEnabled") var runeStoneEditorEnabled: Bool = false
     @AppStorage("terminalOptions") var terminalOptions: CodableWrapper<TerminalOptions> = .init(
         value: TerminalOptions())
-    @AppStorage("firstRunCommandCenterPresented") var firstRunCommandCenterPresented = false
 
     @SceneStorage("sidebar.visible") var isSideBarVisible: Bool = DefaultUIState.SIDEBAR_VISIBLE
     @SceneStorage("panel.height") var panelHeight: Double = DefaultUIState.PANEL_HEIGHT
@@ -374,15 +243,6 @@ private struct MainView: View {
                 stateManager.showsChangeLog.toggle()
             }
 
-            if !firstRunCommandCenterPresented {
-                firstRunCommandCenterPresented = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                    if App.editors.isEmpty {
-                        stateManager.showsCommandPalette = true
-                    }
-                }
-            }
-
             changeLogLastReadVersion = appVersion
         }
         .alert(
@@ -428,13 +288,6 @@ private struct MainView: View {
                 Button("common.continue", action: authenticationRequestManager.callback)
             }
         )
-        .sheet(isPresented: $stateManager.showsCommandPalette) {
-            CommandPaletteView()
-                .environmentObject(App)
-                .environmentObject(stateManager)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
         .sheet(isPresented: $safariManager.showsSafari) {
             if let url = safariManager.urlToVisit {
                 SafariView(url: url)

@@ -29,75 +29,83 @@ struct EditorTab: View {
         return KeyEquivalent.init("0")
     }
 
-    private var isUnsaved: Bool {
-        (currentEditor as? TextEditorInstance)?.isSaved == false
-    }
-
-    private var isDeleted: Bool {
-        (currentEditor as? TextEditorInstance)?.isDeleted == true
-    }
-
     var body: some View {
-        HStack(spacing: 7) {
-            FileIcon(url: currentEditor.title, iconSize: 13)
+        Group {
+            HStack(spacing: 4) {
+                // TODO: File Icons for extensions
+                FileIcon(url: currentEditor.title, iconSize: 12)
+                Button(action: {
+                    onOpenEditor()
+                }) {
+                    Group {
+                        if let editorURL = (currentEditor as? EditorInstanceWithURL)?.url,
+                            let status = App.gitTracks[editorURL]
+                        {
+                            FileDisplayName(
+                                gitStatus: status,
+                                name: currentEditor.title, useAllSpaceAvailableHorizontally: false)
+                        } else {
+                            FileDisplayName(
+                                gitStatus: nil, name: currentEditor.title,
+                                useAllSpaceAvailableHorizontally: false)
+                        }
+                        if let textEditor = currentEditor as? TextEditorInstance,
+                            textEditor.isDeleted
+                        {
+                            Text("(deleted)").italic()
+                        }
+                    }
+                    .lineLimit(1)
+                    .font(.system(size: 13, weight: .light))
+                    .foregroundColor(
+                        Color.init(id: isActive ? "tab.activeForeground" : "tab.inactiveForeground")
+                    )
+                }.keyboardShortcut(EditorTab.keyForInt(int: index + 1), modifiers: .command)
 
-            Button(action: onOpenEditor) {
-                HStack(spacing: 4) {
-                    if let editorURL = (currentEditor as? EditorInstanceWithURL)?.url,
-                        let status = App.gitTracks[editorURL]
+                Group {
+                    if let textEditor = currentEditor as? TextEditorInstance,
+                        !textEditor.isSaved
                     {
-                        FileDisplayName(
-                            gitStatus: status,
-                            name: currentEditor.title,
-                            useAllSpaceAvailableHorizontally: false)
-                    } else {
-                        FileDisplayName(
-                            gitStatus: nil,
-                            name: currentEditor.title,
-                            useAllSpaceAvailableHorizontally: false)
+                        Image(systemName: "circle.fill")
+                            .font(.system(size: 7))
+                            .foregroundColor(
+                                Color.init(
+                                    id: isActive ? "tab.activeForeground" : "tab.inactiveForeground"
+                                )
+                            )
+                            .frame(width: 18, height: 18)
+                            .contentShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
+                            .hoverEffect(.highlight)
+                            .if(isActive) {
+                                $0.onTapGesture {
+                                    onCloseEditor()
+                                }
+                            }
+                    } else if isActive {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 8))
+                            .foregroundColor(
+                                Color.init(
+                                    id: isActive ? "tab.activeForeground" : "tab.inactiveForeground"
+                                )
+                            )
+                            .frame(width: 26, height: 26)
                     }
-                    if isDeleted {
-                        Text("(deleted)")
-                            .italic()
-                            .foregroundColor(Color(id: "tab.inactiveForeground"))
-                    }
+
                 }
-                .lineLimit(1)
-                .font(.system(size: 13, weight: isActive ? .semibold : .regular))
-                .foregroundColor(
-                    Color.init(id: isActive ? "tab.activeForeground" : "tab.inactiveForeground")
-                )
-            }
-            .buttonStyle(.plain)
-            .keyboardShortcut(EditorTab.keyForInt(int: index + 1), modifiers: .command)
+                .contentShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
+                .hoverEffect(.highlight)
+                .onTapGesture {
+                    onCloseEditor()
+                }
 
-            Button(action: onCloseEditor) {
-                Image(systemName: isUnsaved ? "circle.fill" : "xmark")
-                    .font(.system(size: isUnsaved ? 7 : 9, weight: .semibold))
-                    .foregroundColor(Color.init(id: isActive ? "tab.activeForeground" : "tab.inactiveForeground"))
-                    .frame(width: 24, height: 24)
-                    .background(Color(id: "button.background").opacity(isActive ? 0.18 : 0), in: Circle())
-                    .contentShape(Circle())
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(isUnsaved ? "Unsaved file" : "Close editor")
-        }
-        .frame(height: 40)
-        .padding(.horizontal, 9)
-        .background(
-            Color(id: isActive ? "tab.activeBackground" : "sideBar.background").opacity(isActive ? 1 : 0.18),
-            in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-        )
-        .overlay(alignment: .bottom) {
-            if isActive {
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .fill(Color(id: "activityBar.foreground"))
-                    .frame(height: 2)
-                    .padding(.horizontal, 9)
+            .frame(height: 40)
+            .padding(.horizontal, 8)
+            .if(isActive) {
+                $0.background(Color(id: "tab.activeBackground"))
             }
+            .cornerRadius(10, corners: [.topLeft, .topRight])
         }
-        .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .onTapGesture(perform: onOpenEditor)
     }
-
 }

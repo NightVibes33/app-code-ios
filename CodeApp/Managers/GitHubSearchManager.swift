@@ -13,9 +13,6 @@ class GitHubSearchManager: ObservableObject {
     @Published var templates: [item]? = nil
     @Published var searchTerm: String = ""
     @Published var errorMessage: String = ""
-    @Published var isSearching = false
-
-    private var searchTask: Task<Void, Never>?
 
     static let endpoint = "https://api.github.com/search/repositories"
 
@@ -40,55 +37,17 @@ class GitHubSearchManager: ObservableObject {
     }
 
     func search() {
-        searchTask?.cancel()
-        startSearch(for: searchTerm)
-    }
-
-    func searchDebounced() {
-        searchTask?.cancel()
-        let term = searchTerm.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !term.isEmpty else {
-            searchResultItems = []
-            errorMessage = ""
-            isSearching = false
+        if searchTerm == "" {
             return
         }
-        searchTask = Task {
-            try? await Task.sleep(nanoseconds: 450_000_000)
-            guard !Task.isCancelled else { return }
+        self.errorMessage = ""
+
+        let query = searchTerm + "&per_page=10"
+
+        Task {
+            let items = try await executeQuery(query: query)
             await MainActor.run {
-                self.startSearch(for: term)
-            }
-        }
-    }
-
-    private func startSearch(for term: String) {
-        let trimmedTerm = term.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedTerm.isEmpty else {
-            searchResultItems = []
-            errorMessage = ""
-            isSearching = false
-            return
-        }
-
-        let query = trimmedTerm + "&per_page=10"
-        isSearching = true
-        errorMessage = ""
-
-        searchTask = Task {
-            do {
-                let items = try await executeQuery(query: query)
-                guard !Task.isCancelled else { return }
-                await MainActor.run {
-                    self.searchResultItems = items
-                    self.isSearching = false
-                }
-            } catch {
-                guard !Task.isCancelled else { return }
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.isSearching = false
-                }
+                self.searchResultItems = items
             }
         }
     }
@@ -96,16 +55,9 @@ class GitHubSearchManager: ObservableObject {
     func listTemplates() {
         let query = "topic:codeapp-template sort:stars"
         Task {
-            do {
-                let templates = try await executeQuery(query: query)
-                await MainActor.run {
-                    self.templates = templates
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.templates = []
-                }
+            let templates = try await executeQuery(query: query)
+            await MainActor.run {
+                self.templates = templates
             }
         }
     }
@@ -116,7 +68,7 @@ class GitHubSearchManager: ObservableObject {
             return []
         }
         let url = URL(string: GitHubSearchManager.endpoint + "?q=\(query)")!
-
+        print(url.absoluteString)
         let (data, _) = try await URLSession.shared.data(from: url)
         let result = try JSONDecoder().decode(searchResult.self, from: data)
         return result.items

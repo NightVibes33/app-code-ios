@@ -119,8 +119,6 @@ private struct MainSection: View {
                 Text("source_control.title")
                 .foregroundColor(Color(id: "sideBarSectionHeader.foreground"))
         ) {
-            SourceControlDashboard(remotes: remotes)
-
             ZStack(alignment: .leading) {
                 TextEditorWithPlaceholder(
                     placeholder: "source_control.message_command_enter_to_commit",
@@ -135,20 +133,33 @@ private struct MainSection: View {
             .cornerRadius(10)
 
             HStack(spacing: 10) {
-                Button(action: onCommitButtonTapped) {
-                    Label("source_control.commit", systemImage: "checkmark.circle.fill")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 9)
-                        .background(
-                            App.indexedResources.isEmpty ? Color.gray.opacity(0.45) : Color(id: "button.background"),
-                            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        )
+                if App.indexedResources.isEmpty {
+                    Text("errors.source_control.no_staged_changes").foregroundColor(.gray).font(
+                        .system(size: 12, weight: .light))
+                } else {
+                    ZStack {
+                        Button("Commit") {
+                            onCommitButtonTapped()
+                        }
+                        .keyboardShortcut(.return, modifiers: [.command])
+                        .foregroundColor(.clear).font(.system(size: 1))
+
+                        Text("source_control.commit")
+                            .foregroundColor(.white)
+                            .font(.subheadline)
+                            .frame(maxWidth: .infinity)
+                            .padding(4)
+                            .background(
+                                Color.init(id: "button.background")
+                            )
+                            .cornerRadius(10.0)
+                            .onTapGesture {
+                                onCommitButtonTapped()
+                            }
+                    }
                 }
-                .buttonStyle(.plain)
-                .disabled(App.indexedResources.isEmpty)
-                .keyboardShortcut(.return, modifiers: [.command])
+
+                Spacer()
 
                 Menu {
                     Section {
@@ -293,79 +304,6 @@ private struct MainSection: View {
                 }
             }
         }
-    }
-}
-
-
-private struct SourceControlDashboard: View {
-    @EnvironmentObject var App: MainApp
-    let remotes: [Remote]
-
-    private var branchName: String {
-        App.branch.isEmpty ? "No Branch" : App.branch
-    }
-
-    private var syncText: String {
-        if let aheadBehind = App.aheadBehind {
-            return "↑ \(aheadBehind.0)  ↓ \(aheadBehind.1)"
-        }
-        return remotes.isEmpty ? "No Remote" : "Remote Ready"
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 10) {
-                Image(systemName: "arrow.triangle.branch")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(Color(id: "activityBar.foreground"))
-                    .frame(width: 40, height: 40)
-                    .background(Color(id: "button.background").opacity(0.34), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(branchName)
-                        .font(.headline)
-                        .foregroundColor(Color("T1"))
-                        .lineLimit(1)
-                    Text(syncText)
-                        .font(.caption)
-                        .foregroundColor(Color(id: "tab.inactiveForeground"))
-                        .lineLimit(1)
-                }
-                Spacer(minLength: 0)
-            }
-
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 8)], alignment: .leading, spacing: 8) {
-                SourceControlStatPill(title: "Staged", value: "\(App.indexedResources.count)", systemImage: "checkmark.circle")
-                SourceControlStatPill(title: "Changed", value: "\(App.workingResources.count)", systemImage: "pencil.circle")
-                SourceControlStatPill(title: "Remotes", value: "\(remotes.count)", systemImage: "network")
-            }
-        }
-        .padding(14)
-        .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .appCodeGlassPanel(cornerRadius: 18, interactive: false)
-    }
-}
-
-private struct SourceControlStatPill: View {
-    let title: String
-    let value: String
-    let systemImage: String
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: systemImage)
-            Text(value)
-                .fontWeight(.bold)
-            Text(title)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-        }
-        .font(.caption)
-        .foregroundColor(Color("T1"))
-        .padding(.horizontal, 9)
-        .padding(.vertical, 7)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(id: "button.background").opacity(0.30), in: Capsule())
     }
 }
 

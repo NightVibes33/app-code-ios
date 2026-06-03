@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Foundation
 
 struct RemoteImage: View {
     private enum LoadState {
@@ -14,27 +13,16 @@ struct RemoteImage: View {
     }
 
     private class Loader: ObservableObject {
-        private static let cache = NSCache<NSString, NSData>()
-
         var data = Data()
         var state = LoadState.loading
 
         init(url: String) {
-            let cacheKey = url as NSString
-            if let cached = Loader.cache.object(forKey: cacheKey) {
-                self.data = cached as Data
-                self.state = .success
-                return
-            }
-
             guard let parsedURL = URL(string: url) else {
-                self.state = .failure
-                return
+                fatalError("Invalid URL: \(url)")
             }
 
             URLSession.shared.dataTask(with: parsedURL) { data, response, error in
                 if let data = data, data.count > 0 {
-                    Loader.cache.setObject(data as NSData, forKey: cacheKey)
                     self.data = data
                     self.state = .success
                 } else {

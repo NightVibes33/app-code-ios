@@ -36,19 +36,13 @@ struct CompactEditorTabs: View {
                 }
             }
         } label: {
-            HStack(spacing: 7) {
-                Text(App.activeEditor?.title ?? "No Editor")
+            HStack {
+                Text(App.activeEditor?.title ?? "")
                     .bold()
                     .lineLimit(1)
                     .foregroundColor(Color.init("T1"))
 
                 if App.editors.count > 0 {
-                    Text("\(App.editors.count)")
-                        .font(.caption2.weight(.bold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color(id: "button.background"), in: Capsule())
                     Image(systemName: "chevron.down.circle.fill")
                         .symbolRenderingMode(.hierarchical)
                 }

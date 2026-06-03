@@ -58,10 +58,6 @@ struct SettingsView: View {
                 .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
                 .listRowBackground(Color.clear)
 
-                SettingsQuickMapCard()
-                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 10, trailing: 16))
-                    .listRowBackground(Color.clear)
-
                 Group {
                     Section(header: Text(NSLocalizedString("General", comment: ""))) {
                         NavigationLink(
@@ -373,49 +369,6 @@ struct SettingsView: View {
             )
             .configureToolbarBackground()
             .preferredColorScheme(themeManager.colorSchemePreference)
-        }
-    }
-}
-
-private struct SettingsQuickMapItem: Identifiable {
-    let title: String
-    let subtitle: String
-    let systemImage: String
-    var id: String { title }
-}
-
-private struct SettingsQuickMapCard: View {
-    private let items = [
-        SettingsQuickMapItem(title: "Editor", subtitle: "Font, tabs, wrapping", systemImage: "text.cursor"),
-        SettingsQuickMapItem(title: "Terminal", subtitle: "Shell font and toolbar", systemImage: "terminal"),
-        SettingsQuickMapItem(title: "Git", subtitle: "Identity and auth", systemImage: "arrow.triangle.branch"),
-        SettingsQuickMapItem(title: "Workspace", subtitle: "Files and restore", systemImage: "folder")
-    ]
-
-    var body: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 142), spacing: 8)], alignment: .leading, spacing: 8) {
-            ForEach(items) { item in
-                HStack(spacing: 9) {
-                    Image(systemName: item.systemImage)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Color(id: "activityBar.foreground"))
-                        .frame(width: 28, height: 28)
-                        .background(Color(id: "button.background").opacity(0.30), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(item.title)
-                            .font(.caption.weight(.semibold))
-                            .foregroundColor(Color("T1"))
-                        Text(item.subtitle)
-                            .font(.caption2)
-                            .foregroundColor(Color(id: "tab.inactiveForeground"))
-                            .lineLimit(1)
-                    }
-                    Spacer(minLength: 0)
-                }
-                .padding(10)
-                .background(Color(id: "sideBar.background").opacity(0.50), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .appCodeGlassPanel(cornerRadius: 14, interactive: false)
-            }
         }
     }
 }
