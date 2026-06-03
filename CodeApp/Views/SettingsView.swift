@@ -71,7 +71,9 @@ struct SettingsView: View {
                             in: 8...24)
 
                         Button(action: {
-                            guard let url = URL(string: "https://github.com/NightVibes33/app-code-ios")
+                            guard
+                                let url = URL(
+                                    string: "https://github.com/NightVibes33/app-code-ios")
                             else { return }
                             UIApplication.shared.open(url)
                         }) {

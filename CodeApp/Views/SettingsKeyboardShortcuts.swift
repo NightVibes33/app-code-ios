@@ -14,10 +14,15 @@ struct SettingsKeyboardShortcuts: View {
     @State var filter: String = ""
     @State var storedShortcuts: [String: [GCKeyCode]] = [:]
 
+    private static let shortcutsDefaultsKey = "com.nightvibes.appcode.custom.keyboard.shortcuts"
+
+    private static func loadStoredShortcuts() -> [String: [GCKeyCode]]? {
+        UserDefaults.standard.value(forKey: shortcutsDefaultsKey)
+            as? [String: [GCKeyCode]]
+    }
+
     init() {
-        if let result = UserDefaults.standard.value(
-            forKey: "com.nightvibes.appcode.custom.keyboard.shortcuts") as? [String: [GCKeyCode]]
-        {
+        if let result = Self.loadStoredShortcuts() {
             _storedShortcuts = State(initialValue: result)
         }
         // This must be called twice for it to work for some reason.
@@ -85,10 +90,7 @@ struct SettingsKeyboardShortcuts: View {
         }
         .background(Color(id: "sideBar.background"))
         .onAppear {
-            if let result = UserDefaults.standard.value(
-                forKey: "com.nightvibes.appcode.custom.keyboard.shortcuts"
-            ) as? [String: [GCKeyCode]]
-            {
+            if let result = Self.loadStoredShortcuts() {
                 storedShortcuts = result
             }
         }
