@@ -21,7 +21,6 @@ struct SettingsView: View {
     @AppStorage("alwaysOpenInNewTab") var alwaysOpenInNewTab: Bool = false
     @AppStorage("stateRestorationEnabled") var stateRestorationEnabled = true
     @AppStorage("communityTemplatesEnabled") var communityTemplatesEnabled = true
-    @AppStorage("remoteShouldResolveHomePath") var remoteShouldResolveHomePath = false
     @AppStorage("editorOptions") var editorOptions: CodableWrapper<EditorOptions> = .init(
         value: EditorOptions())
     @AppStorage("terminalOptions") var terminalOptions: CodableWrapper<TerminalOptions> = .init(
@@ -144,11 +143,6 @@ struct SettingsView: View {
                         }
                         Toggle(
                             "source_control.community_templates", isOn: $communityTemplatesEnabled)
-                    }
-
-                    Section("remote.settings.ssh_remote") {
-                        Toggle(
-                            "remote.settings.resolve_home_path", isOn: $remoteShouldResolveHomePath)
                     }
 
                     Section(header: Text(NSLocalizedString("EXPLORER", comment: ""))) {
@@ -505,7 +499,7 @@ private struct SettingsOverviewCard: View {
                     .background(Color(id: "button.background").opacity(0.34), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("App Code Settings")
+                    Text("Settings")
                         .font(.headline)
                         .foregroundColor(Color("T1"))
                     Text("Tune the editor, terminal, Git, and workspace startup in one place.")

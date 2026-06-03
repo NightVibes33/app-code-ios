@@ -72,6 +72,8 @@ struct WelcomeView: View {
     @EnvironmentObject var App: MainApp
     @SceneStorage("activitybar.selected.item") private var activeItemId: String = DefaultUIState.ACTIVITYBAR_SELECTED_ITEM
     @SceneStorage("sidebar.visible") private var isSideBarVisible: Bool = DefaultUIState.SIDEBAR_VISIBLE
+    @SceneStorage("panel.visible") private var isPanelVisible: Bool = DefaultUIState.PANEL_IS_VISIBLE
+    @SceneStorage("panel.focusedId") private var currentPanelId: String = DefaultUIState.PANEL_FOCUSED_ID
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -104,120 +106,51 @@ struct WelcomeView: View {
     private var actions: [WelcomeAction] {
         [
             WelcomeAction(
-                id: "new-file",
-                title: "New File",
-                subtitle: "Start a blank file in this workspace.",
-                systemImage: "doc.badge.plus",
-                isPrimary: true,
-                action: onCreateNewFile
-            ),
-            WelcomeAction(
                 id: "open-folder",
                 title: "Open Folder",
-                subtitle: "Switch to another local workspace.",
+                subtitle: "Pick the project folder you want to work in.",
                 systemImage: "folder.badge.gearshape",
-                isPrimary: false,
+                isPrimary: true,
                 action: onSelectFolder
+            ),
+            WelcomeAction(
+                id: "clone",
+                title: "Clone Repository",
+                subtitle: "Search GitHub or paste a Git URL.",
+                systemImage: "arrow.down.doc.fill",
+                isPrimary: false,
+                action: showClonePanel
+            ),
+            WelcomeAction(
+                id: "new-file",
+                title: "New File",
+                subtitle: "Create a file in the current workspace.",
+                systemImage: "doc.badge.plus",
+                isPrimary: false,
+                action: onCreateNewFile
             ),
             WelcomeAction(
                 id: "open-file",
                 title: "Open File",
-                subtitle: "Pick a single file from Files.",
+                subtitle: "Open a single file from Files.",
                 systemImage: "doc.text.magnifyingglass",
                 isPrimary: false,
                 action: onSelectFile
             ),
             WelcomeAction(
-                id: "clone",
-                title: "Clone Repo",
-                subtitle: "Open Source Control for GitHub or SSH.",
-                systemImage: "arrow.down.doc.fill",
+                id: "terminal",
+                title: "Terminal",
+                subtitle: "Run commands in the local workspace.",
+                systemImage: "terminal",
                 isPrimary: false,
-                action: showClonePanel
+                action: showTerminal
             ),
         ]
     }
 
     private var gridColumns: [GridItem] {
-        let minWidth: CGFloat = dynamicTypeSize.isAccessibilitySize ? 240 : 170
+        let minWidth: CGFloat = dynamicTypeSize.isAccessibilitySize ? 260 : 220
         return [GridItem(.adaptive(minimum: minWidth), spacing: 12)]
-    }
-
-    private func showClonePanel() {
-        activeItemId = "SOURCE_CONTROL"
-        isSideBarVisible = true
-        onNavigateToCloneSection()
-    }
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                header
-                actionGrid
-                projectHealthSection
-                recentSection
-            }
-            .frame(maxWidth: 920, alignment: .leading)
-            .padding(.horizontal, horizontalSizeClass == .compact ? 20 : 40)
-            .padding(.vertical, horizontalSizeClass == .compact ? 24 : 42)
-        }
-        .background(welcomeBackground)
-    }
-
-    private var welcomeBackground: some View {
-        ZStack {
-            Color(id: "editor.background")
-            LinearGradient(
-                colors: [
-                    Color(id: "button.background").opacity(0.28),
-                    Color(id: "editor.background").opacity(0.92),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        }
-        .ignoresSafeArea()
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 14) {
-                Image(systemName: "chevron.left.forwardslash.chevron.right")
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(Color(id: "activityBar.foreground"))
-                    .frame(width: 54, height: 54)
-                    .background(Color(id: "button.background").opacity(0.32), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .appCodeGlassPanel(cornerRadius: 18)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("App Code")
-                        .font(.system(.largeTitle, design: .rounded).weight(.bold))
-                        .foregroundColor(Color("T1"))
-                    Text("Build, edit, run, and ship from one local workspace.")
-                        .font(.callout)
-                        .foregroundColor(Color(id: "tab.inactiveForeground"))
-                }
-            }
-
-            HStack(spacing: 10) {
-                statusPill("iOS 26", systemImage: "iphone")
-                statusPill("Local-first", systemImage: "externaldrive")
-                statusPill("SSH ready", systemImage: "network")
-            }
-        }
-    }
-
-    private var actionGrid: some View {
-        LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 12) {
-            ForEach(actions) { action in
-                Button(action: action.action) {
-                    WelcomeActionCard(action: action)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(action.title)
-                .accessibilityHint(action.subtitle)
-            }
-        }
     }
 
     private var workspaceTitle: String {
@@ -228,43 +161,95 @@ struct WelcomeView: View {
         URL(string: App.workSpaceStorage.currentDirectory.url)?.path ?? App.workSpaceStorage.currentDirectory.url
     }
 
-    private var debugInfo: String {
-        [
-            "App Code Feedback",
-            "Workspace: \(workspaceDetail)",
-            "Branch: \(App.branch.isEmpty ? "No Git branch" : App.branch)",
-            "Changes: \(App.gitTracks.count)",
-            "Terminals: \(App.terminalManager.terminals.count)",
-            "Editor ready: \(App.stateManager.isMonacoEditorInitialized)",
-            "Language service: \(App.stateManager.isSystemExtensionsInitialized)",
-            "Remote workspace: \(App.workSpaceStorage.remoteConnected)",
-            "Notifications: \(App.notificationManager.activeNotificationCount)",
-        ].joined(separator: "\n")
+    private var hasGitRepository: Bool {
+        !App.branch.isEmpty
     }
 
-    private func copyDebugInfo() {
-        UIPasteboard.general.string = debugInfo + "\n\n" + App.notificationManager.debugSummary()
-        App.notificationManager.showInformationMessage("Debug info copied")
+    private func showClonePanel() {
+        activeItemId = "SOURCE_CONTROL"
+        isSideBarVisible = true
+        onNavigateToCloneSection()
     }
 
-    private func sendFeedback() {
-        copyDebugInfo()
-        let subject = "App Code Feedback".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "App%20Code%20Feedback"
-        let body = debugInfo.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        if let url = URL(string: "mailto:?subject=\(subject)&body=\(body)") {
-            UIApplication.shared.open(url)
+    private func showTerminal() {
+        currentPanelId = "TERMINAL"
+        isPanelVisible = true
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                header
+                actionGrid
+                workspaceSection
+                recentSection
+            }
+            .frame(maxWidth: 980, alignment: .leading)
+            .padding(.horizontal, horizontalSizeClass == .compact ? 18 : 34)
+            .padding(.vertical, horizontalSizeClass == .compact ? 22 : 34)
+        }
+        .background(Color(id: "editor.background").ignoresSafeArea())
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 14) {
+                Image(systemName: "chevron.left.forwardslash.chevron.right")
+                    .font(.system(size: 23, weight: .semibold))
+                    .foregroundColor(Color(id: "activityBar.foreground"))
+                    .frame(width: 46, height: 46)
+                    .background(Color(id: "button.background").opacity(0.40), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("App Cøde")
+                        .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                        .foregroundColor(Color("T1"))
+                    Text("Local code editing, terminal, search, and Git in one workspace.")
+                        .font(.callout)
+                        .foregroundColor(Color(id: "tab.inactiveForeground"))
+                }
+            }
+
+            HStack(spacing: 8) {
+                statusPill("Files", systemImage: "folder")
+                statusPill("Editor", systemImage: "curlybraces")
+                statusPill("Terminal", systemImage: "terminal")
+                statusPill("Git", systemImage: "arrow.triangle.branch")
+            }
         }
     }
 
-    private var projectHealthSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+    private var actionGrid: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Start")
+                .font(.headline)
+                .foregroundColor(Color("T1"))
+
+            LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 12) {
+                ForEach(actions) { action in
+                    Button(action: action.action) {
+                        WelcomeActionCard(action: action)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(action.title)
+                    .accessibilityHint(action.subtitle)
+                }
+            }
+        }
+    }
+
+    private var workspaceSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "externaldrive")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(Color(id: "activityBar.foreground"))
+                    .frame(width: 34, height: 34)
+                    .background(Color(id: "button.background").opacity(0.30), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+
                 VStack(alignment: .leading, spacing: 4) {
-                    Label("Project Health", systemImage: "waveform.path.ecg.rectangle")
-                        .font(.headline)
-                        .foregroundColor(Color("T1"))
                     Text(workspaceTitle)
-                        .font(.subheadline.weight(.semibold))
+                        .font(.headline)
                         .foregroundColor(Color("T1"))
                         .lineLimit(1)
                     Text(workspaceDetail)
@@ -272,41 +257,30 @@ struct WelcomeView: View {
                         .foregroundColor(Color(id: "tab.inactiveForeground"))
                         .lineLimit(2)
                 }
+
                 Spacer(minLength: 0)
-                HStack(spacing: 8) {
-                    Button(action: sendFeedback) {
-                        Label("Feedback", systemImage: "paperplane")
-                    }
-                    Button(action: copyDebugInfo) {
-                        Label("Debug", systemImage: "doc.on.doc")
-                    }
-                }
-                .buttonStyle(.bordered)
-                .labelStyle(.titleAndIcon)
-                .font(.caption.weight(.semibold))
             }
 
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 210 : 148), spacing: 10)], spacing: 10) {
-                healthTile("Branch", value: App.branch.isEmpty ? "No Git" : App.branch, systemImage: "point.topleft.down.curvedto.point.bottomright.up", isGood: !App.branch.isEmpty)
-                healthTile("Changes", value: App.gitTracks.isEmpty ? "Clean" : "\(App.gitTracks.count) files", systemImage: "tray.full", isGood: App.gitTracks.isEmpty)
-                healthTile("Terminals", value: "\(App.terminalManager.terminals.count) active", systemImage: "terminal", isGood: App.terminalManager.terminals.count > 0)
-                healthTile("Editor", value: App.stateManager.isMonacoEditorInitialized ? "Ready" : "Loading", systemImage: "curlybraces", isGood: App.stateManager.isMonacoEditorInitialized)
-                healthTile("Language", value: App.stateManager.isSystemExtensionsInitialized ? "Ready" : "Deferred", systemImage: "sparkle.magnifyingglass", isGood: App.stateManager.isSystemExtensionsInitialized)
-                healthTile("Mode", value: App.workSpaceStorage.remoteConnected ? "Remote" : "Local", systemImage: App.workSpaceStorage.remoteConnected ? "network" : "externaldrive", isGood: true)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 220 : 170), spacing: 10)], spacing: 10) {
+                workspaceMetric("Editor", value: App.stateManager.isMonacoEditorInitialized ? "Ready" : "Loading", systemImage: "curlybraces", isGood: App.stateManager.isMonacoEditorInitialized)
+                workspaceMetric("Terminal", value: "Ready", systemImage: "terminal", isGood: true)
+                workspaceMetric("Git", value: hasGitRepository ? App.branch : "Open or clone", systemImage: "arrow.triangle.branch", isGood: hasGitRepository)
+                workspaceMetric("Changes", value: App.gitTracks.isEmpty ? "Clean" : "\(App.gitTracks.count) files", systemImage: "tray.full", isGood: App.gitTracks.isEmpty)
             }
         }
         .padding(16)
-        .background(Color(id: "sideBar.background").opacity(0.50), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .appCodeGlassPanel(cornerRadius: 18, interactive: false)
+        .background(Color(id: "sideBar.background").opacity(0.56), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .appCodeGlassPanel(cornerRadius: 14, interactive: false)
     }
 
-    private func healthTile(_ title: LocalizedStringKey, value: String, systemImage: String, isGood: Bool) -> some View {
-        HStack(spacing: 10) {
+    private func workspaceMetric(_ title: LocalizedStringKey, value: String, systemImage: String, isGood: Bool) -> some View {
+        HStack(spacing: 9) {
             Image(systemName: systemImage)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(isGood ? Color.green : Color.orange)
-                .frame(width: 28, height: 28)
-                .background(Color(id: "button.background").opacity(0.24), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+                .frame(width: 26, height: 26)
+                .background(Color(id: "button.background").opacity(0.25), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
                     .font(.caption2.weight(.semibold))
@@ -319,42 +293,37 @@ struct WelcomeView: View {
             Spacer(minLength: 0)
         }
         .padding(10)
-        .background(Color(id: "editor.background").opacity(0.34), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Color(id: "editor.background").opacity(0.35), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     @ViewBuilder
     private var recentSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Recent Workspaces", systemImage: "clock.arrow.circlepath")
-                    .font(.headline)
-                    .foregroundColor(Color("T1"))
-                Spacer()
-            }
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Recent Workspaces")
+                .font(.headline)
+                .foregroundColor(Color("T1"))
 
             if recentFolders.isEmpty {
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     Image(systemName: "folder")
-                        .font(.title3)
                         .foregroundColor(Color(id: "tab.inactiveForeground"))
-                    Text("Open a folder to pin it here for faster starts.")
+                    Text("Opened folders will appear here.")
                         .font(.callout)
                         .foregroundColor(Color(id: "tab.inactiveForeground"))
-                    Spacer()
+                    Spacer(minLength: 0)
                 }
-                .padding(16)
-                .background(Color(id: "sideBar.background").opacity(0.62), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .appCodeGlassPanel(cornerRadius: 16, interactive: false)
+                .padding(14)
+                .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             } else {
                 VStack(spacing: 8) {
-                    ForEach(recentFolders.prefix(5)) { folder in
+                    ForEach(recentFolders.prefix(6)) { folder in
                         Button {
                             onSelectFolderAsWorkspaceStorage(folder.url)
                         } label: {
                             HStack(spacing: 12) {
                                 Image(systemName: "folder.fill")
                                     .foregroundColor(Color(id: "activityBar.foreground"))
-                                    .frame(width: 28)
+                                    .frame(width: 26)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(folder.name)
                                         .font(.body.weight(.semibold))
@@ -365,18 +334,17 @@ struct WelcomeView: View {
                                         .foregroundColor(Color(id: "tab.inactiveForeground"))
                                         .lineLimit(1)
                                 }
-                                Spacer()
+                                Spacer(minLength: 0)
                                 Image(systemName: "chevron.right")
                                     .font(.caption.weight(.semibold))
                                     .foregroundColor(Color(id: "tab.inactiveForeground"))
                             }
-                            .padding(14)
-                            .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .padding(13)
+                            .background(Color(id: "sideBar.background").opacity(0.58), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
                         .buttonStyle(.plain)
                     }
                 }
-                .appCodeGlassPanel(cornerRadius: 18, interactive: false)
             }
         }
     }
@@ -385,10 +353,9 @@ struct WelcomeView: View {
         Label(title, systemImage: systemImage)
             .font(.caption.weight(.semibold))
             .foregroundColor(Color("T1"))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(Color(id: "sideBar.background").opacity(0.58), in: Capsule())
-            .appCodeGlassPanel(cornerRadius: 18)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 6)
+            .background(Color(id: "sideBar.background").opacity(0.62), in: Capsule())
     }
 }
 
@@ -396,12 +363,12 @@ private struct WelcomeActionCard: View {
     let action: WelcomeAction
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             Image(systemName: action.systemImage)
-                .font(.system(size: 24, weight: .semibold))
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(action.isPrimary ? Color.white : Color(id: "activityBar.foreground"))
-                .frame(width: 44, height: 44)
-                .background(action.isPrimary ? Color.accentColor : Color(id: "button.background").opacity(0.36), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .frame(width: 36, height: 36)
+                .background(action.isPrimary ? Color.accentColor : Color(id: "button.background").opacity(0.35), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(action.title)
@@ -417,9 +384,17 @@ private struct WelcomeActionCard: View {
 
             Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, minHeight: 142, alignment: .topLeading)
-        .padding(16)
-        .background(Color(id: "sideBar.background").opacity(action.isPrimary ? 0.72 : 0.54), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .appCodeGlassPanel(cornerRadius: 18, interactive: true)
+        .frame(maxWidth: .infinity, minHeight: 78, alignment: .topLeading)
+        .padding(14)
+        .background(Color(id: "sideBar.background").opacity(action.isPrimary ? 0.70 : 0.52), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(alignment: .leading) {
+            if action.isPrimary {
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(Color.accentColor)
+                    .frame(width: 3)
+                    .padding(.vertical, 12)
+            }
+        }
+        .appCodeGlassPanel(cornerRadius: 12, interactive: true)
     }
 }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-var ACTIVITY_BAR_WIDTH: CGFloat = 50.0
+var ACTIVITY_BAR_WIDTH: CGFloat = 72.0
 
 struct PanelToggleButton: View {
     @SceneStorage("panel.visible") var isPanelVisible: Bool = DefaultUIState.PANEL_IS_VISIBLE

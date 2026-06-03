@@ -25,7 +25,6 @@ class ExtensionManager: ObservableObject {
         MarkdownViewerExtension(),
         SourceControlAuxiliaryExtension(),
         SimpleWebPreviewExtension(),
-        RemoteAuxiliaryExtension(),
     ]
 
     func registerExtension(ex: CodeAppExtension) {
