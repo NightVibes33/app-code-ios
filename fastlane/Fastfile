@@ -16,7 +16,7 @@ MATCH_READONLY = ENV.fetch("MATCH_READONLY", "false") == "true"
 MATCH_FORCE = ENV.fetch("MATCH_FORCE", "true") == "true"
 DISTRIBUTE_EXTERNAL = ENV["DISTRIBUTE_EXTERNAL"] == "true"
 XCODE_PATH = ENV["XCODE_PATH"] || "/Applications/Xcode_26.5.app"
-WAIT_FOR_TESTFLIGHT_PROCESSING = ENV.fetch("WAIT_FOR_TESTFLIGHT_PROCESSING", "true") == "true"
+WAIT_FOR_TESTFLIGHT_PROCESSING = ENV.fetch("WAIT_FOR_TESTFLIGHT_PROCESSING", "false") == "true"
 TESTFLIGHT_PROCESSING_TIMEOUT = ENV.fetch("TESTFLIGHT_PROCESSING_TIMEOUT", "2400").to_i
 TESTFLIGHT_CHANGELOG = ENV["TESTFLIGHT_CHANGELOG"] || "Improved the command center, editor tabs, Source Control dashboard, GitHub clone flow, search results, remote setup, notifications, settings, and iOS 26 Liquid Glass polish."
 
@@ -111,16 +111,21 @@ platform :ios do
       xcargs: "DEVELOPMENT_TEAM=#{DEVELOPER_PORTAL_TEAM_ID}"
     )
 
-    pilot(
+    pilot_options = {
       apple_id: DEVELOPER_APP_ID,
       app_identifier: DEVELOPER_APP_IDENTIFIER,
       ipa: "./AppCode.ipa",
       skip_submission: true,
       skip_waiting_for_build_processing: !WAIT_FOR_TESTFLIGHT_PROCESSING,
-      wait_processing_timeout_duration: TESTFLIGHT_PROCESSING_TIMEOUT,
-      changelog: TESTFLIGHT_CHANGELOG,
       api_key: api_key
-    )
+    }
+
+    if WAIT_FOR_TESTFLIGHT_PROCESSING
+      pilot_options[:wait_processing_timeout_duration] = TESTFLIGHT_PROCESSING_TIMEOUT
+      pilot_options[:changelog] = TESTFLIGHT_CHANGELOG
+    end
+
+    pilot(pilot_options)
 
     delete_temp_keychain(keychain_name)
   end
