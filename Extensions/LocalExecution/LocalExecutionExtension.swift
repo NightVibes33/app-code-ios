@@ -43,6 +43,22 @@ class LocalExecutionExtension: CodeAppExtension {
     }
 
     @MainActor
+    private func waitForTerminalReady(_ terminal: TerminalInstance) async -> Bool {
+        if terminal.isReady {
+            return true
+        }
+
+        for _ in 0..<20 {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            if terminal.isReady {
+                return true
+            }
+        }
+
+        return terminal.isReady
+    }
+
+    @MainActor
     private func terminalForLocalExecution(app: MainApp) -> TerminalInstance? {
         if let activeTerminal = app.terminalManager.activeTerminal,
             activeTerminal.terminalServiceProvider == nil,
@@ -88,6 +104,12 @@ class LocalExecutionExtension: CodeAppExtension {
         guard let executor = executionTerminal.executor else {
             app.notificationManager.showErrorMessage(
                 "Cannot run: terminal '\(executionTerminal.name)' has no executor.")
+            return
+        }
+
+        guard await waitForTerminalReady(executionTerminal) else {
+            app.notificationManager.showWarningMessage(
+                "Terminal is still starting. Try again in a moment.")
             return
         }
 

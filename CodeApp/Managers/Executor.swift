@@ -219,15 +219,18 @@ class Executor {
 
         stdout_active = true
 
+        let executionState: State = isInteractive ? .interactive : .running
+        if Thread.isMainThread {
+            state = executionState
+        } else {
+            DispatchQueue.main.sync {
+                self.state = executionState
+            }
+        }
+
         let queue = DispatchQueue(label: "\(command)", qos: .utility)
 
         queue.async {
-            if isInteractive {
-                self.state = .interactive
-            } else {
-                self.state = .running
-            }
-
             self.lastCommand = command
             Thread.current.name = command
 
