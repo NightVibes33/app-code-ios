@@ -17,7 +17,9 @@ extension View {
                 self.glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
             }
         } else {
-            self.background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            self.background(
+                .ultraThinMaterial,
+                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
     }
 }

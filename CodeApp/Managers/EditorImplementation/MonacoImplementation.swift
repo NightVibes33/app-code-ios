@@ -495,8 +495,8 @@ extension MonacoImplementation: EditorImplementation {
     }
 
     func _applyCustomShortcuts() async {
-        if let result = UserDefaults.standard.value(forKey: "com.nightvibes.appcode.custom.keyboard.shortcuts")
-            as? [String: [GCKeyCode]]
+        if let result = UserDefaults.standard.value(
+            forKey: "com.nightvibes.appcode.custom.keyboard.shortcuts") as? [String: [GCKeyCode]]
         {
             for entry in result {
                 let gcCodes = entry.value

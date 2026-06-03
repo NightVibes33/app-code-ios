@@ -14,6 +14,7 @@ APPLE_KEY_CONTENT = ENV["APPLE_KEY_CONTENT"]
 GIT_AUTHORIZATION = ENV["GIT_AUTHORIZATION"]
 MATCH_READONLY = ENV.fetch("MATCH_READONLY", "false") == "true"
 MATCH_FORCE = ENV.fetch("MATCH_FORCE", "true") == "true"
+MATCH_SKIP_CERTIFICATE_MATCHING = ENV.fetch("MATCH_SKIP_CERTIFICATE_MATCHING", "true") == "true"
 DISTRIBUTE_EXTERNAL = ENV["DISTRIBUTE_EXTERNAL"] == "true"
 XCODE_PATH = ENV["XCODE_PATH"] || "/Applications/Xcode_26.5.app"
 WAIT_FOR_TESTFLIGHT_PROCESSING = ENV.fetch("WAIT_FOR_TESTFLIGHT_PROCESSING", "false") == "true"
@@ -91,6 +92,7 @@ platform :ios do
       git_basic_authorization: Base64.strict_encode64(GIT_AUTHORIZATION),
       readonly: MATCH_READONLY,
       force: MATCH_FORCE,
+      skip_certificate_matching: MATCH_SKIP_CERTIFICATE_MATCHING,
       keychain_name: keychain_name,
       keychain_password: keychain_password,
       api_key: api_key

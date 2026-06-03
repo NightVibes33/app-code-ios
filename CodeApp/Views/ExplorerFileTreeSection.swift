@@ -181,10 +181,12 @@ struct ExplorerFileTree: View {
             guard let targetURL = item._url ?? URL(string: item.url) else {
                 return
             }
-            let baseURL = (App.activeEditor as? EditorInstanceWithURL)?.url
+            let baseURL =
+                (App.activeEditor as? EditorInstanceWithURL)?.url
                 ?? App.workSpaceStorage.currentDirectory._url
                 ?? targetURL.deletingLastPathComponent()
-            pasteboard.string = targetURL.relativePath(from: baseURL)
+            pasteboard.string =
+                targetURL.relativePath(from: baseURL)
                 ?? targetURL.pathRelativeTo(baseURL)
                 ?? targetURL.lastPathComponent
             App.notificationManager.showInformationMessage("Copied relative path")

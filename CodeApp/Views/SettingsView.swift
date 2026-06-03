@@ -65,8 +65,10 @@ struct SettingsView: View {
                         )
 
                         Stepper(
-                            "\(NSLocalizedString("Console Font Size", comment: "")) (\(terminalOptions.value.fontSize))",
-                            value: $terminalOptions.value.fontSize, in: 8...24)
+                            "\(NSLocalizedString("Console Font Size", comment: "")) "
+                                + "(\(terminalOptions.value.fontSize))",
+                            value: $terminalOptions.value.fontSize,
+                            in: 8...24)
 
                         Button(action: {
                             guard let url = URL(string: "https://github.com/NightVibes33/app-code-ios")
@@ -286,7 +288,10 @@ struct SettingsView: View {
                         )
                         Link(
                             "code.and.privacy",
-                            destination: URL(string: "https://github.com/NightVibes33/app-code-ios/blob/main/PRIVACY.md")!)
+                            destination: URL(
+                                string:
+                                    "https://github.com/NightVibes33/app-code-ios/blob/main/PRIVACY.md"
+                            )!)
 
                         NavigationLink(
                             destination: SimpleMarkDownView(
